@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lumina</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: #fdfaf8;
+        --glass: rgba(255, 255, 255, 0.4);
+        --glass-border: rgba(255, 255, 255, 0.7);
+        --text-prime: #2d2928;
+        --text-secondary: #9a8f8c;
+        --accent-gradient: linear-gradient(135deg, #f3c1a7 0%, #f8bc83 100%);
+      }
+
+      * { box-sizing: border-box; cursor: default; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: 'Ubuntu', sans-serif;
+        color: var(--text-prime);
+        background: var(--bg);
+      
+        background-image: 
+          radial-gradient(circle at 15% 15%, rgba(237, 164, 245, 0.15), transparent 40%),
+          radial-gradient(circle at 85% 10%, rgba(248, 188, 131, 0.2), transparent 40%),
+          radial-gradient(circle at 50% 90%, rgba(243, 193, 167, 0.1), transparent 50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 60px 20px;
+      }
+
+      .luxury-header {
+        text-align: center;
+        margin-bottom: 80px;
+        animation: fadeIn 1.2s ease-out;
+      }
+
+      .brand {
+        font-family: "Times New Roman", serif;
+        font-size: clamp(3rem, 10vw, 7rem);
+        font-weight: 100;
+        letter-spacing: 0.35em;
+        margin: 0;
+        color: transparent;
+        -webkit-text-stroke: 0.5px rgba(45, 41, 40, 0.3);
+        text-transform: uppercase;
+      }
+
+      .tagline {
+        font-size: 0.65rem;
+        letter-spacing: 0.6em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        margin-top: -10px;
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 32px;
+        max-width: 1280px;
+        width: 100%;
+      }
+
+      .glass-card {
+        background: var(--glass);
+        backdrop-filter: blur(25px) saturate(160%);
+        -webkit-backdrop-filter: blur(25px) saturate(160%);
+        border: 1px solid var(--glass-border);
+        border-radius: 48px;
+        box-shadow: 0 25px 50px -12px rgba(160, 130, 110, 0.08);
+        transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+      }
+
+      .video-box {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 16 / 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .video-box img {
+        width: 96%;
+        height: 94%;
+        object-fit: cover;
+        border-radius: 38px;
+      }
+
+      .panel {
+        padding: 48px 40px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .label {
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.25em;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+        text-transform: uppercase;
+      }
+
+      #prediction {
+        font-size: 4rem;
+        font-weight: 300;
+        margin: 0 0 48px 0;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .sentence-view {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 32px;
+        padding: 30px;
+        font-size: 1.2rem;
+        line-height: 1.6;
+        min-height: 180px;
+        margin-bottom: auto;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        font-weight: 300;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 40px;
+      }
+
+      .btn {
+        padding: 20px;
+        border-radius: 22px;
+        font-family: 'Ubuntu', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 400;
+        border: none;
+        transition: all 0.3s ease;
+      }
+
+      .btn-black {
+        grid-column: span 2;
+        background: #1a1a1a;
+        color: #fff;
+        letter-spacing: 0.1em;
+      }
+
+      .btn-outline {
+        background: #fff;
+        color: var(--text-prime);
+        border: 1px solid rgba(0,0,0,0.04);
+      }
+
+      .btn:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+        background: #000; color: #fff; 
+      }
+
+      .fps-pill {
+        position: absolute;
+        bottom: 30px;
+        left: 40px;
+        background: rgba(255,255,255,0.8);
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (max-width: 1100px) {
+        .main-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="luxury-header">
+      <h1 class="brand">LUMINA</h1>
+      <p class="tagline">Sign Language Translator</p>
+    </header>
+
+    <main class="main-grid">
+      <section class="glass-card video-box">
+        <img src="/video_feed" alt="Translation Interface" />
+        <div class="fps-pill" id="fps">FPS: 00</div>
+      </section>
+
+      <aside class="glass-card panel">
+        <span class="label">Captured Symbol</span>
+        <h2 id="prediction">-</h2>
+
+        <span class="label">Translation Output</span>
+        <div class="sentence-view" id="sentence">
+          Awaiting input...
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-black" id="speakBtn">SPEAK OUTPUT</button>
+          <button class="btn btn-outline" id="clearBtn">CLEAR</button>
+          <button class="btn btn-outline" id="saveBtn">ARCHIVE</button>
+        </div>
+      </aside>
+    </main>
+
+    <script>
+      async function trigger(path) {
+        await fetch(path, { method: "POST" });
+      }
+
+      async function sync() {
+        try {
+          const r = await fetch("/status");
+          const d = await r.json();
+          document.getElementById("prediction").innerText = d.prediction || " ";
+          document.getElementById("sentence").innerText = d.sentence || " ";
+          document.getElementById("fps").innerText = `SYSTEM STABLE | FPS: ${d.fps ?? 0}`;
+        } catch {}
+      }
+
+      document.getElementById("speakBtn").onclick = () => trigger("/action/speak");
+      document.getElementById("clearBtn").onclick = () => trigger("/action/clear");
+      document.getElementById("saveBtn").onclick = () => trigger("/action/save");
+
+      setInterval(sync, 150);
+    </script>
+  </body>
+</html>
