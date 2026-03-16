@@ -1,100 +1,91 @@
-# Lumina
+# Lumina: Sign Language Translator and Academy
 
-This project predicts ASL hand signs from webcam input and builds a sentence.
+Lumina is a web-based educational platform that combines real-time American Sign Language (ASL) translation with a gamified learning curriculum. It utilizes MediaPipe for hand landmark detection and a pre-trained machine learning model for sign classification.
 
-## What to use
-- Recommended app: `web_app.py` (runs on localhost)
-- Optional desktop app: `app.py` (Tkinter)
+## Technical Requirements
+- Python 3.10
+- Webcam
+- Modern Web Browser (Chrome/Edge/Safari)
 
-## macOS
+---
 
-### 1. Clone
+## Installation and Setup
 
-```bash
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
-```
+### macOS
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Aankiitaa/Lumina.git
+   cd Lumina
+   ```
+2. **Create and activate a virtual environment**
+   ```bash
+   python3.10 -m venv .venv
+   source .venv/bin/activate
+   ```
+3. **Install dependencies**
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements-web.txt
+   ```
+4. **Run the application**
+   ```bash
+   python web_app.py
+   ```
+   Access the application at `http://127.0.0.1:5001`.
 
-### 2. Create virtual environment (Python 3.10)
+### Windows
+1. **Clone the repository**
+   ```powershell
+   git clone https://github.com/Aankiitaa/Lumina.git
+   cd Lumina
+   ```
+2. **Create and activate a virtual environment**
+   ```powershell
+   py -3.10 -m venv .venv
+   .\.venv\Scripts\activate
+   ```
+3. **Install dependencies**
+   ```powershell
+   python -m pip install --upgrade pip
+   pip install -r requirements-web.txt
+   ```
+4. **Run the application**
+   ```powershell
+   python web_app.py
+   ```
+   Access the application at `http://127.0.0.1:5001`.
 
-```bash
-python3.10 -m venv .venv
-source .venv/bin/activate
-```
+---
 
-If `python3.10` is missing:
+## File Registry
 
-```bash
-brew install python@3.10
-```
+### Application Core
+- **web_app.py**: The main Flask application server handling routes, authentication, and the MediaPipe inference pipeline.
+- **model.p**: Pre-trained machine learning model for sign classification.
+- **lumina_auth.db**: SQLite database for user accounts and progress tracking.
 
-### 3. Install runtime dependencies
+### User Interface (Templates)
+- **templates/login.html**: Redesigned light-theme login page.
+- **templates/signup.html**: Redesigned signup page with user onboarding.
+- **templates/otp_verify.html**: Email verification interface.
+- **templates/dashboard.html**: Home navigation providing access to the Academy and Translator.
+- **templates/academy.html**: Gamified learning interface with interactive sign practice.
+- **templates/index.html**: Live camera translator workspace.
 
-```bash
-pip install --upgrade pip
-pip install -r requirements-web.txt
-```
+### Assets and Data
+- **static/**: Directory containing CSS, JavaScript, and decorative mascot illustrations.
+- **data/**: Directory for training dataset storage.
+- **requirements-web.txt**: List of Python dependencies for the web application.
 
-### 4. Run web app
+### Developer Tools (Retraining)
+- **collect_data.py**: Script for capturing new hand landmark data.
+- **train_model.py**: Script for retraining the classifier model.
+- **your_landmarks.npy / your_labels.npy**: Processed training data.
 
-```bash
-python web_app.py
-```
+---
 
-Open:
-
-- `http://127.0.0.1:5001`
-
-## Windows
-
-### 1. Clone
-
-```powershell
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
-```
-
-### 2. Create virtual environment (Python 3.10)
-
-```powershell
-py -3.10 -m venv .venv
-.\.venv\Scripts\activate
-```
-
-If Python 3.10 is missing, install it from the official installer and ensure `py` works.
-
-### 3. Install runtime dependencies
-
-```powershell
-python -m pip install --upgrade pip
-pip install -r requirements-web.txt
-```
-
-### 4. Run web app
-
-```powershell
-python web_app.py
-```
-
-Open:
-
-- `http://127.0.0.1:5001`
-
-
-## Notes
-
-- This repo includes a pre-trained model file: `model.p`.
-- Raw training data is not required to run inference.
-- Webcam permission is required.
-
-## For retraining
-
-Training-related scripts/data in this repo:
-
-- `collect_data.py`
-- `convert_dataset.py`
-- `train_model.py`
-- `data/`
-- `your_landmarks.npy`, `your_labels.npy`
-
-Retraining is optional and not needed for normal app usage.
+## Authentication Configuration
+To enable live email verification, set the following environment variables:
+- `LUMINA_EMAIL`: Your service Gmail address.
+- `LUMINA_EMAIL_PASS`: Your Google App Password.
+- `LUMINA_SECRET_KEY`: A unique string for session security.

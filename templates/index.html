@@ -1,240 +1,560 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Lumina</title>
-    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-    <style>
-      :root {
-        --bg: #fdfaf8;
-        --glass: rgba(255, 255, 255, 0.4);
-        --glass-border: rgba(255, 255, 255, 0.7);
-        --text-prime: #2d2928;
-        --text-secondary: #9a8f8c;
-        --accent-gradient: linear-gradient(135deg, #f3c1a7 0%, #f8bc83 100%);
-      }
 
-      * { box-sizing: border-box; cursor: default; }
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumina Translator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F0EDEA;
+      --surface: #FFFFFF;
+      --surface2: #F7F5F2;
+      --text: #1A1A2E;
+      --muted: #7A7A8E;
+      --line: #E8E5E0;
+      --yellow: #F0E54F;
+      --yellow-hover: #e8dd4a;
+      --lavender: #9B7BFF;
+      --coral: #e85d3a;
+      --pink: #F5C6D0;
+      --deep-purple: #6C4AB6;
+    }
 
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: 'Ubuntu', sans-serif;
-        color: var(--text-prime);
-        background: var(--bg);
-      
-        background-image: 
-          radial-gradient(circle at 15% 15%, rgba(237, 164, 245, 0.15), transparent 40%),
-          radial-gradient(circle at 85% 10%, rgba(248, 188, 131, 0.2), transparent 40%),
-          radial-gradient(circle at 50% 90%, rgba(243, 193, 167, 0.1), transparent 50%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 60px 20px;
-      }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+    }
 
-      .luxury-header {
-        text-align: center;
-        margin-bottom: 80px;
-        animation: fadeIn 1.2s ease-out;
-      }
+    body {
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
 
-      .brand {
-        font-family: "Times New Roman", serif;
-        font-size: clamp(3rem, 10vw, 7rem);
-        font-weight: 100;
-        letter-spacing: 0.35em;
-        margin: 0;
-        color: transparent;
-        -webkit-text-stroke: 0.5px rgba(45, 41, 40, 0.3);
-        text-transform: uppercase;
-      }
+    .wrap {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 22px 18px 110px;
+    }
 
-      .tagline {
-        font-size: 0.65rem;
-        letter-spacing: 0.6em;
-        text-transform: uppercase;
-        color: var(--text-secondary);
-        margin-top: -10px;
-      }
+    /* Top bar */
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
 
+    .left {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chip,
+    .logout-btn {
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .chip:hover,
+    .logout-btn:hover {
+      background: var(--surface2);
+      border-color: var(--lavender);
+      box-shadow: 0 2px 8px rgba(155, 123, 255, 0.1);
+    }
+
+    .title-block {
+      margin: 28px 0 18px;
+      text-align: center;
+    }
+
+    .title {
+      font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Hero — lavender card */
+    .hero {
+      margin: 0 0 16px;
+      border-radius: 22px;
+      padding: 22px 26px;
+      background: var(--lavender);
+      color: #FFFFFF;
+    }
+
+    .hero h2 {
+      font-size: clamp(1.2rem, 2vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .hero p {
+      margin: 6px 0 0;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.88rem;
+    }
+
+    /* Main layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(330px, 0.85fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .video-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Video card */
+    .video-box {
+      border-radius: 22px;
+      padding: 12px;
+      position: relative;
+      min-height: 300px;
+      background: var(--surface);
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .video-box img {
+      width: 100%;
+      display: block;
+      border-radius: 16px;
+    }
+
+    .fps-pill {
+      position: absolute;
+      left: 20px;
+      bottom: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--line);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--muted);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Right panel */
+    .panel {
+      border-radius: 22px;
+      padding: 24px;
+      background: var(--surface);
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    #prediction {
+      margin: 8px 0 18px;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--deep-purple);
+    }
+
+    .sentence-view {
+      background: var(--surface2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      min-height: 140px;
+      padding: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    /* Controls */
+    .controls {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 20px;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+
+    .btn:hover {
+      opacity: 0.88;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-yellow {
+      background: var(--yellow);
+      color: #1A1A2E;
+      box-shadow: 0 2px 10px rgba(240, 229, 79, 0.25);
+    }
+
+    .btn-outline {
+      background: var(--surface);
+      color: var(--text);
+      border: 1.5px solid var(--line);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--lavender);
+      background: var(--surface2);
+    }
+
+    .stat-row {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .info-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: var(--surface2);
+    }
+
+    .info-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .info-value {
+      margin-top: 4px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 10px 12px;
+      z-index: 9;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+
+    .bottom-nav a:hover {
+      color: var(--lavender);
+    }
+
+    .bottom-nav a strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    @media (max-width: 920px) {
       .main-grid {
-        display: grid;
-        grid-template-columns: 1fr 420px;
-        gap: 32px;
-        max-width: 1280px;
-        width: 100%;
+        grid-template-columns: 1fr;
       }
+    }
 
-      .glass-card {
-        background: var(--glass);
-        backdrop-filter: blur(25px) saturate(160%);
-        -webkit-backdrop-filter: blur(25px) saturate(160%);
-        border: 1px solid var(--glass-border);
-        border-radius: 48px;
-        box-shadow: 0 25px 50px -12px rgba(160, 130, 110, 0.08);
-        transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-      }
+    /* --- Overlays --- */
+    .start-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: rgba(247, 245, 242, 0.92);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      z-index: 5;
+    }
 
-      .video-box {
-        position: relative;
-        overflow: hidden;
-        aspect-ratio: 16 / 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    .start-overlay p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
 
-      .video-box img {
-        width: 96%;
-        height: 94%;
-        object-fit: cover;
-        border-radius: 38px;
-      }
+    .btn-start {
+      border: none;
+      border-radius: 999px;
+      padding: 14px 34px;
+      font: inherit;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      background: var(--yellow);
+      color: #1A1A2E;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 2px 12px rgba(240, 229, 79, 0.3);
+    }
 
-      .panel {
-        padding: 48px 40px;
-        display: flex;
-        flex-direction: column;
-      }
+    .btn-start:hover {
+      background: var(--yellow-hover);
+      box-shadow: 0 4px 18px rgba(240, 229, 79, 0.4);
+    }
 
-      .label {
-        font-size: 0.7rem;
-        font-weight: 500;
-        letter-spacing: 0.25em;
-        color: var(--text-secondary);
-        margin-bottom: 16px;
-        text-transform: uppercase;
-      }
+    .btn-start:active {
+      transform: scale(0.97);
+    }
 
-      #prediction {
-        font-size: 4rem;
-        font-weight: 300;
-        margin: 0 0 48px 0;
-        background: var(--accent-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
+    /* Floating hide-camera button */
+    .hide-cam-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 6;
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      background: rgba(26, 26, 46, 0.7);
+      color: #fff;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
 
-      .sentence-view {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 32px;
-        padding: 30px;
-        font-size: 1.2rem;
-        line-height: 1.6;
-        min-height: 180px;
-        margin-bottom: auto;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        font-weight: 300;
-      }
+    .hide-cam-btn:hover {
+      background: rgba(26, 26, 46, 0.85);
+    }
 
-      .controls {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-top: 40px;
-      }
+    /* --- Progress bar --- */
+    .progress-wrap {
+      height: 5px;
+      border-radius: 999px;
+      background: var(--line);
+      overflow: hidden;
+    }
 
-      .btn {
-        padding: 20px;
-        border-radius: 22px;
-        font-family: 'Ubuntu', sans-serif;
-        font-size: 0.9rem;
-        font-weight: 400;
-        border: none;
-        transition: all 0.3s ease;
-      }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--yellow);
+      transition: width 0.1s linear;
+    }
+  </style>
+</head>
 
-      .btn-black {
-        grid-column: span 2;
-        background: #1a1a1a;
-        color: #fff;
-        letter-spacing: 0.1em;
-      }
+<body>
+  <main class="wrap">
+    <div class="top">
+      <div class="left">
+        <a class="chip" href="/">HOME</a>
+        <a class="chip" href="/academy">ACADEMY</a>
+      </div>
+      <button class="logout-btn" id="logoutBtn">LOG OUT</button>
+    </div>
 
-      .btn-outline {
-        background: #fff;
-        color: var(--text-prime);
-        border: 1px solid rgba(0,0,0,0.04);
-      }
-
-      .btn:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 24px rgba(0,0,0,0.06);
-        background: #000; color: #fff; 
-      }
-
-      .fps-pill {
-        position: absolute;
-        bottom: 30px;
-        left: 40px;
-        background: rgba(255,255,255,0.8);
-        padding: 6px 16px;
-        border-radius: 100px;
-        font-size: 0.7rem;
-        color: var(--text-secondary);
-      }
-
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      @media (max-width: 1100px) {
-        .main-grid { grid-template-columns: 1fr; }
-      }
-    </style>
-  </head>
-  <body>
-    <header class="luxury-header">
-      <h1 class="brand">LUMINA</h1>
-      <p class="tagline">Sign Language Translator</p>
+    <header class="title-block">
+      <h1 class="title">Lumina Translator</h1>
+      <p class="sub">Real-time sign detection and sentence output.</p>
     </header>
 
-    <main class="main-grid">
-      <section class="glass-card video-box">
-        <img src="/video_feed" alt="Translation Interface" />
-        <div class="fps-pill" id="fps">FPS: 00</div>
-      </section>
+    <section class="hero">
+      <h2>Live translation workspace</h2>
+      <p>Keep your hand visible in frame. Lumina captures steady signs and builds your sentence automatically.</p>
+    </section>
 
-      <aside class="glass-card panel">
+    <section class="main-grid">
+      <div class="video-col">
+        <section class="video-box">
+          <div class="start-overlay" id="startOverlay">
+            <p>Translator is idle</p>
+            <button class="btn-start" id="startBtn">START TRANSLATING</button>
+          </div>
+          <div class="start-overlay" id="cameraOffMsg" style="display:none;">
+            <p>Translating without preview</p>
+            <button class="btn-start" id="showCamBtn">SHOW CAMERA</button>
+          </div>
+          <img alt="Translation Interface" id="videoFeed" style="display:none; width:100%; border-radius:16px;" />
+          <button class="hide-cam-btn" id="hideCamBtn" style="display:none;">HIDE CAMERA</button>
+          <div class="fps-pill" id="fps" style="display:none;">FPS: --</div>
+        </section>
+        <div class="progress-wrap" id="progressWrap" style="display:none;">
+          <div class="progress-fill" id="holdBar"></div>
+        </div>
+      </div>
+
+      <aside class="panel">
         <span class="label">Captured Symbol</span>
         <h2 id="prediction">-</h2>
 
         <span class="label">Translation Output</span>
-        <div class="sentence-view" id="sentence">
-          Awaiting input...
+        <div class="sentence-view" id="sentence">Awaiting input...</div>
+
+        <div class="info-box" style="margin-top:16px;">
+          <div class="info-label">Mode</div>
+          <div class="info-value">Sign to Text + Voice</div>
         </div>
 
         <div class="controls">
-          <button class="btn btn-black" id="speakBtn">SPEAK OUTPUT</button>
+          <button class="btn btn-yellow" id="speakBtn">SPEAK OUTPUT</button>
           <button class="btn btn-outline" id="clearBtn">CLEAR</button>
-          <button class="btn btn-outline" id="saveBtn">ARCHIVE</button>
+          <button class="btn btn-outline" id="deleteBtn">&#x232B; DELETE</button>
         </div>
       </aside>
-    </main>
+    </section>
+  </main>
 
-    <script>
-      async function trigger(path) {
-        await fetch(path, { method: "POST" });
+  <nav class="bottom-nav">
+    <a href="/"><strong>Home</strong>Choose track</a>
+    <a href="/academy"><strong>Practice</strong>Academy</a>
+    <a href="/translator"><strong>Translator</strong>Live camera</a>
+  </nav>
+
+  <script>
+    sessionStorage.removeItem("lumina_on_auth");
+
+    async function trigger(path) {
+      const r = await fetch(path, { method: "POST" });
+      if (r.status === 401) window.location.href = "/login";
+    }
+
+    const startOverlay = document.getElementById("startOverlay");
+    const cameraOffMsg = document.getElementById("cameraOffMsg");
+    const videoFeed = document.getElementById("videoFeed");
+    const startBtn = document.getElementById("startBtn");
+    const showCamBtn = document.getElementById("showCamBtn");
+    const holdBar = document.getElementById("holdBar");
+    const progressWrap = document.getElementById("progressWrap");
+    const fpsPill = document.getElementById("fps");
+    const hideCamBtn = document.getElementById("hideCamBtn");
+
+    let cameraVisible = false;
+
+    startBtn.addEventListener("click", async () => {
+      startBtn.textContent = "Starting...";
+      startBtn.disabled = true;
+      const r = await fetch("/action/start", { method: "POST" });
+      if (r.status === 401) { window.location.href = "/login"; return; }
+      if (r.ok) {
+        startOverlay.style.display = "none";
+        cameraOffMsg.style.display = "flex";
+        progressWrap.style.display = "block";
+      } else {
+        startBtn.textContent = "Failed — retry";
+        startBtn.disabled = false;
       }
+    });
 
-      async function sync() {
-        try {
-          const r = await fetch("/status");
-          const d = await r.json();
-          document.getElementById("prediction").innerText = d.prediction || " ";
-          document.getElementById("sentence").innerText = d.sentence || " ";
-          document.getElementById("fps").innerText = `SYSTEM STABLE | FPS: ${d.fps ?? 0}`;
-        } catch {}
-      }
+    function showCamera() {
+      videoFeed.src = "/video_feed";
+      videoFeed.style.display = "block";
+      cameraOffMsg.style.display = "none";
+      fpsPill.style.display = "block";
+      hideCamBtn.style.display = "block";
+      cameraVisible = true;
+    }
 
-      document.getElementById("speakBtn").onclick = () => trigger("/action/speak");
-      document.getElementById("clearBtn").onclick = () => trigger("/action/clear");
-      document.getElementById("saveBtn").onclick = () => trigger("/action/save");
+    function hideCamera() {
+      videoFeed.src = "";
+      videoFeed.style.display = "none";
+      cameraOffMsg.style.display = "flex";
+      fpsPill.style.display = "none";
+      hideCamBtn.style.display = "none";
+      cameraVisible = false;
+    }
 
-      setInterval(sync, 150);
-    </script>
-  </body>
+    showCamBtn.addEventListener("click", showCamera);
+    hideCamBtn.addEventListener("click", hideCamera);
+
+    async function sync() {
+      try {
+        const r = await fetch("/status");
+        if (r.status === 401) { window.location.href = "/login"; return; }
+        const d = await r.json();
+        document.getElementById("prediction").innerText = d.prediction || " ";
+        document.getElementById("sentence").innerText = d.sentence || " ";
+        if (cameraVisible) {
+          fpsPill.innerText = "SYSTEM STABLE | FPS: " + (d.fps ?? 0);
+        }
+        holdBar.style.width = Math.round((d.hold_progress ?? 0) * 100) + "%";
+      } catch { }
+    }
+
+    document.getElementById("speakBtn").onclick = () => trigger("/action/speak");
+    document.getElementById("clearBtn").onclick = () => trigger("/action/clear");
+    document.getElementById("deleteBtn").onclick = () => trigger("/action/delete");
+
+    setInterval(sync, 120);
+
+    // Logout with splash
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      const splash = document.getElementById("logoutSplash");
+      splash.style.display = "grid";
+      await fetch("/logout", { method: "POST" });
+      sessionStorage.setItem("lumina_on_auth", "1");
+      setTimeout(() => { window.location.href = "/login"; }, 1600);
+    });
+  </script>
+
+  <div id="logoutSplash" style="position:fixed;inset:0;display:none;place-items:center;background:#9B7BFF;z-index:100;">
+    <div style="text-align:center;">
+      <h1 style="font-size:clamp(2.6rem,10vw,4.8rem);font-weight:700;letter-spacing:0.12em;color:#FFFFFF;margin:0;">
+        LUMINA</h1>
+      <p style="margin:8px 0 0;color:rgba(255,255,255,0.75);font-size:0.92rem;font-weight:500;letter-spacing:0.06em;">SIGN LANGUAGE
+        TRANSLATOR + ACADEMY</p>
+    </div>
+  </div>
+</body>
+
 </html>

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Verify OTP | Lumina</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F0EDEA;
+            --surface: #FFFFFF;
+            --surface2: #F7F5F2;
+            --text: #1A1A2E;
+            --muted: #7A7A8E;
+            --line: #E8E5E0;
+            --yellow: #F0E54F;
+            --yellow-hover: #e8dd4a;
+            --lavender: #9B7BFF;
+            --coral: #e85d3a;
+            --pink: #F5C6D0;
+            --deep-purple: #6C4AB6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Inter", sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: var(--yellow);
+            opacity: 0.18;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            bottom: -80px;
+            left: -80px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: var(--lavender);
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .auth-shell {
+            width: min(440px, 100%);
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--surface);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            position: relative;
+            z-index: 2;
+        }
+
+        .form-pane {
+            padding: 48px 32px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .sub {
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 32px;
+        }
+
+        .otp-container {
+            margin: 24px 0;
+        }
+
+        .otp-input {
+            width: 100%;
+            background: var(--surface2);
+            border: 2px solid var(--line);
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: 0.4em;
+            text-align: center;
+            color: var(--deep-purple);
+            transition: all 0.2s;
+        }
+
+        .otp-input::placeholder {
+            color: #c5c3cc;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--lavender);
+            box-shadow: 0 0 0 4px rgba(155, 123, 255, 0.12);
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 12px;
+            border: none;
+            border-radius: 999px;
+            padding: 16px;
+            background: var(--yellow);
+            color: #1A1A2E;
+            font: inherit;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 12px rgba(240, 229, 79, 0.25);
+        }
+
+        .submit-btn:hover {
+            background: var(--yellow-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 18px rgba(240, 229, 79, 0.35);
+        }
+
+        .error {
+            margin-top: 20px;
+            color: var(--coral);
+            font-size: 0.9rem;
+            background: rgba(232, 93, 58, 0.08);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .hint {
+            margin-top: 28px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .hint a {
+            color: var(--lavender);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.15s;
+        }
+
+        .hint a:hover {
+            color: var(--deep-purple);
+        }
+
+        /* Decorative star */
+        .deco-star {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            opacity: 0.4;
+            pointer-events: none;
+            animation: starSpin 12s linear infinite;
+        }
+
+        @keyframes starSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <img class="deco-star" src="/static/Poster Design/3.png" alt="" aria-hidden="true" />
+    <main class="auth-shell">
+        <section class="form-pane">
+            <h1>Check your<br>email</h1>
+            <p class="sub">We've sent a 6-digit verification code to your inbox. Please enter it below.</p>
+
+            <form method="POST">
+                <div class="otp-container">
+                    <input type="text" name="otp" class="otp-input" placeholder="000000" maxlength="6" pattern="\d{6}"
+                        inputmode="numeric" required autofocus autocomplete="one-time-code" />
+                </div>
+                <button type="submit" class="submit-btn">Verify Account</button>
+            </form>
+
+            {% if error %}
+            <p class="error">{{ error }}</p>
+            {% endif %}
+
+            <p class="hint">Didn't get a code? <a href="/signup">Try again →</a></p>
+        </section>
+    </main>
+</body>
+
+</html>

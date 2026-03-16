@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumina Login</title>
+
+  <!-- Anti-blink script: Hide entire page until script decides what to show -->
+  <style id="anti-blink">
+    html {
+      visibility: hidden;
+    }
+  </style>
+  <script>
+    if (sessionStorage.getItem("lumina_on_auth") === "1") {
+      // Coming from signup, show auth immediately, hide splash
+      document.documentElement.style.visibility = "visible";
+    }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F0EDEA;
+      --surface: #FFFFFF;
+      --surface2: #F7F5F2;
+      --text: #1A1A2E;
+      --muted: #7A7A8E;
+      --line: #E8E5E0;
+      --yellow: #F0E54F;
+      --yellow-hover: #e8dd4a;
+      --lavender: #9B7BFF;
+      --coral: #e85d3a;
+      --pink: #F5C6D0;
+      --deep-purple: #6C4AB6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative background shapes */
+    body::before {
+      content: "";
+      position: fixed;
+      top: -80px;
+      right: -80px;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: var(--pink);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      bottom: -60px;
+      left: -60px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: var(--yellow);
+      opacity: 0.25;
+      pointer-events: none;
+    }
+
+    .auth-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .mascot-deco {
+      display: none;
+    }
+
+    @media (min-width: 820px) {
+      .mascot-deco {
+        display: block;
+        width: 200px;
+        opacity: 0.9;
+        filter: drop-shadow(0 8px 24px rgba(0,0,0,0.08));
+        animation: mascotFloat 4s ease-in-out infinite;
+      }
+    }
+
+    @keyframes mascotFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .auth-shell {
+      width: min(440px, 100%);
+      border-radius: 24px;
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .form-pane {
+      padding: 40px 32px;
+    }
+
+    .auth-hidden {
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+    }
+
+    .auth-visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--text);
+    }
+
+    .sub {
+      margin: 8px 0 28px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface2);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input::placeholder {
+      color: #b0adb8;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--lavender);
+      box-shadow: 0 0 0 3px rgba(155, 123, 255, 0.12);
+    }
+
+    .submit-btn {
+      width: 100%;
+      margin-top: 24px;
+      border: none;
+      border-radius: 999px;
+      padding: 15px;
+      background: var(--yellow);
+      color: #1A1A2E;
+      font: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 2px 12px rgba(240, 229, 79, 0.25);
+    }
+
+    .submit-btn:hover {
+      background: var(--yellow-hover);
+      box-shadow: 0 4px 18px rgba(240, 229, 79, 0.35);
+    }
+
+    .submit-btn:active {
+      transform: scale(0.98);
+    }
+
+    .error {
+      margin-top: 12px;
+      color: var(--coral);
+      font-size: 0.88rem;
+      background: rgba(232, 93, 58, 0.08);
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+
+    .hint {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      text-align: center;
+    }
+
+    .hint a {
+      color: var(--lavender);
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .hint a:hover {
+      color: var(--deep-purple);
+    }
+
+    /* Splash */
+    .splash {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: var(--lavender);
+      z-index: 20;
+    }
+
+    .splash-box {
+      text-align: center;
+    }
+
+    .splash-logo {
+      margin: 0;
+      font-size: clamp(2.6rem, 10vw, 4.8rem);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #FFFFFF;
+    }
+
+    .splash-sub {
+      margin: 8px 0 0;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.92rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+
+    .splash-run {
+      animation: splashFade 1.1s ease-in-out forwards;
+    }
+
+    @keyframes splashFade {
+      0% {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+
+      30% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      72% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(1.02);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="splash" class="splash" style="display: grid;">
+    <div class="splash-box splash-run">
+      <h1 class="splash-logo">LUMINA</h1>
+      <p class="splash-sub">SIGN LANGUAGE TRANSLATOR + ACADEMY</p>
+    </div>
+  </div>
+  <script>
+    // If we need to show splash, make page visible now (splash covers it)
+    if (sessionStorage.getItem("lumina_on_auth") !== "1") {
+      document.documentElement.style.visibility = "visible";
+    } else {
+      document.getElementById("splash").style.display = "none";
+    }
+  </script>
+
+  <div class="auth-wrapper">
+    <img class="mascot-deco" src="/static/Poster Design/1.png" alt="" aria-hidden="true" />
+    <main id="auth-card" class="auth-shell auth-hidden">
+      <section class="form-pane">
+        <h1>Hello<br>again!</h1>
+        <p class="sub">Continue to Lumina</p>
+
+        <form method="POST" action="/login">
+          <label for="username">Username</label>
+          <input id="username" name="username" type="text" autocomplete="username" placeholder="your username" required />
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••"
+            required />
+
+          <button class="submit-btn" type="submit">Log in</button>
+        </form>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <p class="hint">I don't have an account. <a href="/signup">Sign up →</a></p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const splash = document.getElementById("splash");
+    const authCard = document.getElementById("auth-card");
+
+    function revealAuth() {
+      authCard.classList.remove("auth-hidden");
+      authCard.classList.add("auth-visible");
+    }
+
+    if (splash.style.display !== "none") {
+      setTimeout(() => {
+        splash.style.display = "none";
+        revealAuth();
+      }, 1600);
+    } else {
+      revealAuth();
+    }
+
+    sessionStorage.setItem("lumina_on_auth", "1");
+  </script>
+</body>
+
+</html>
