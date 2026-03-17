@@ -482,20 +482,7 @@
 
     let cameraVisible = false;
 
-    startBtn.addEventListener("click", async () => {
-      startBtn.textContent = "Starting...";
-      startBtn.disabled = true;
-      const r = {ok: true, status: 200}; // mocked for cloud
-      if (r.status === 401) { window.location.href = "/login"; return; }
-      if (r.ok) {
-        startOverlay.style.display = "none";
-        cameraOffMsg.style.display = "flex";
-        progressWrap.style.display = "block";
-      } else {
-        startBtn.textContent = "Failed — retry";
-        startBtn.disabled = false;
-      }
-    });
+
 
 
     let captureInterval = null;
@@ -583,7 +570,24 @@
     document.getElementById("clearBtn").onclick = () => trigger("/action/clear");
     document.getElementById("deleteBtn").onclick = () => trigger("/action/delete");
 
-    // setInterval(sync, 120); removed for cloud compute
+    // Start polling in background once the overlay is dismissed
+    startBtn.addEventListener("click", async () => {
+       startBtn.textContent = "Starting...";
+       startBtn.disabled = true;
+       
+       try {
+         // showCamera initiates the stream and the interval
+         await showCamera(); 
+         hideCamera(); // Default to background mode
+         
+         startOverlay.style.display = "none";
+         cameraOffMsg.style.display = "flex";
+         progressWrap.style.display = "block";
+       } catch (e) {
+         startBtn.textContent = "Failed — retry";
+         startBtn.disabled = false;
+       }
+    });
 
     // Logout with splash
     document.getElementById("logoutBtn").addEventListener("click", async () => {
