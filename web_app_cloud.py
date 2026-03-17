@@ -39,21 +39,36 @@ hands = None
 mediapipe_ready = False
 mediapipe_error = ""
 
-try:
-    mp_hands = mp.solutions.hands
-    mp_drawing = mp.solutions.drawing_utils
-    hands = mp_hands.Hands(
-        static_image_mode=False,
-        max_num_hands=1,
-        model_complexity=0,
-        min_detection_confidence=0.65,
-        min_tracking_confidence=0.65,
-    )
-    mediapipe_ready = True
-except Exception as e:
-    mediapipe_error = str(e)
-    print("CRITICAL: MediaPipe failed to initialize! Error:", mediapipe_error)
-
+def init_mediapipe_lazy():
+    global mp_hands, mp_drawing, hands, mediapipe_ready, mediapipe_error
+    if mediapipe_ready and hands is not None:
+        return
+    
+    try:
+        import mediapipe as mp
+        print(f"DEBUG: MediaPipe lazy-init version: {getattr(mp, '__version__', 'unknown')}")
+        try:
+            from mediapipe.python.solutions import hands as mp_hands_module
+            from mediapipe.python.solutions import drawing_utils as mp_drawing_module
+            mp_hands = mp_hands_module
+            mp_drawing = mp_drawing_module
+        except ImportError:
+            mp_hands = mp.solutions.hands
+            mp_drawing = mp.solutions.drawing_utils
+        
+        hands = mp_hands.Hands(
+            static_image_mode=False,
+            max_num_hands=1,
+            model_complexity=0,
+            min_detection_confidence=0.65,
+            min_tracking_confidence=0.65,
+        )
+        mediapipe_ready = True
+        print("DEBUG: MediaPipe lazy-init successful.")
+    except Exception as e:
+        mediapipe_ready = False
+        mediapipe_error = str(e)
+        print("CRITICAL: MediaPipe lazy-init failed! Error:", mediapipe_error)
 # ----------------------------
 # Utils
 # ----------------------------
@@ -68,6 +83,7 @@ def normalize_landmarks(landmarks):
 
 
 def extract_landmarks(frame_bgr):
+    init_mediapipe_lazy()
     if not mediapipe_ready or hands is None:
         return None, None
     image_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)

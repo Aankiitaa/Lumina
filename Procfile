@@ -1,1 +1,1 @@
-web: gunicorn web_app_cloud:app
+web: gunicorn --workers 1 --threads 1 --bind 0.0.0.0:$PORT web_app_cloud:app
