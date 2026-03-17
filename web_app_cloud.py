@@ -52,7 +52,7 @@ try:
     mediapipe_ready = True
 except Exception as e:
     mediapipe_error = str(e)
-
+    print("CRITICAL: MediaPipe failed to initialize! Error:", mediapipe_error)
 
 # ----------------------------
 # Utils
@@ -445,6 +445,9 @@ def process_frame():
         fps = 1.0 / max(1e-6, (now - state.prev_frame_time))
         state.prev_frame_time = now
         state.fps = int(fps)
+
+        # Mirror the frame laterally to match the model's training orientation
+        frame = cv2.flip(frame, 1)
 
         infer_frame = cv2.resize(frame, (320, 210))
         landmarks_raw, hand_landmarks = extract_landmarks(infer_frame)

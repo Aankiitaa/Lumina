@@ -1286,23 +1286,7 @@
         let pIndex = 0;
         const pCards = [...currentCards].sort(() => Math.random() - 0.5).slice(0, 5);
 
-        // Start camera if not already running
-        if (!practiceCameraStarted) {
-          actionArea.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:0.85rem;">Starting camera...</div>`;
-          try {
-            const r = await fetch("/action/start", { method: "POST" });
-            if (!r.ok) {
-              actionArea.innerHTML = `<div style="color:var(--coral);text-align:center;">Camera failed to start. Please try again.</div>
-                <button class="cel-btn" id="retryPractice" style="margin-top:12px;">RETRY</button>`;
-              document.getElementById("retryPractice").onclick = startPracticeLoop;
-              return;
-            }
-            practiceCameraStarted = true;
-          } catch (e) {
-            actionArea.innerHTML = `<div style="color:var(--coral);text-align:center;">Camera error: ${e.message}</div>`;
-            return;
-          }
-        }
+        // Start camera logic moved to showPracticeCard completely
 
         // Also clear translator state
         await fetch("/action/clear", { method: "POST" }).catch(() => {});
@@ -1327,7 +1311,8 @@
                 <div class="practice-camera-starting">Detecting without preview</div>
                 <button class="practice-cam-toggle" id="practiceShowCam">SHOW CAMERA</button>
               </div>
-              <img src="" alt="Camera feed" id="practiceCamFeed" style="display:none;">
+              <video id="practiceVideo" autoplay playsinline style="display:none; width:100%; height:100%; object-fit:cover; transform:scaleX(-1);"></video>
+              <canvas id="practiceCanvas" style="display:none;"></canvas>
               <button class="practice-cam-toggle practice-cam-hide" id="practiceHideCam" style="display:none;">HIDE CAMERA</button>
             </div>
             <div class="practice-hold-bar">
@@ -1340,34 +1325,55 @@
           // Camera toggle handlers
           document.getElementById("practiceShowCam").onclick = () => {
             document.getElementById("practiceCamWrap").classList.add("expanded");
-            document.getElementById("practiceCamFeed").src = "/video_feed";
-            document.getElementById("practiceCamFeed").style.display = "block";
+            document.getElementById("practiceVideo").style.display = "block";
             document.getElementById("practiceCamOff").style.display = "none";
             document.getElementById("practiceHideCam").style.display = "block";
           };
           document.getElementById("practiceHideCam").onclick = () => {
             document.getElementById("practiceCamWrap").classList.remove("expanded");
-            document.getElementById("practiceCamFeed").src = "";
-            document.getElementById("practiceCamFeed").style.display = "none";
+            document.getElementById("practiceVideo").style.display = "none";
             document.getElementById("practiceCamOff").style.display = "flex";
             document.getElementById("practiceHideCam").style.display = "none";
           };
           actionArea.innerHTML = "";
           progressEl.textContent = `Practice: ${pIndex + 1} / ${pCards.length}`;
 
-          // Stability tracking
           let matchStart = null;
           const HOLD_SECONDS = 1.5;
           let isCorrect = false;
 
-          // Start polling /status
+          // Set up local camera manually
+          const videoElement = document.getElementById("practiceVideo");
+          navigator.mediaDevices.getUserMedia({video: true}).then(stream => {
+              videoElement.srcObject = stream;
+              practiceCameraStarted = true;
+          }).catch(e => {
+              document.getElementById("practiceFeedback").innerHTML = `<span style="color:red">Camera error: ${e.message}</span>`;
+          });
+
+          // Polling API logic
           stopPracticePolling();
           practicePollingId = setInterval(async () => {
             if (isCorrect) return;
+            const video = document.getElementById("practiceVideo");
+            const canvas = document.getElementById("practiceCanvas");
+            if (!video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+
             try {
-              const res = await fetch("/status");
+              const res = await fetch("/api/process_frame", {
+                  method: "POST",
+                  headers: {"Content-Type": "application/json"},
+                  body: JSON.stringify({ image: dataUrl })
+              });
               if (res.status === 401) { window.location.href = "/login"; return; }
               const data = await res.json();
+              if (!data.ok) return;
               const prediction = (data.prediction || "").toUpperCase();
 
               const predEl = document.getElementById("practicePrediction");
@@ -1380,7 +1386,6 @@
               predEl.textContent = prediction || "—";
 
               if (prediction === targetLetter) {
-                // Matching — track stability
                 if (!matchStart) matchStart = Date.now();
                 const elapsed = (Date.now() - matchStart) / 1000;
                 const progress = Math.min(1, elapsed / HOLD_SECONDS);
@@ -1389,7 +1394,6 @@
                 camWrap.classList.remove("error");
 
                 if (elapsed >= HOLD_SECONDS) {
-                  // ✅ SUCCESS
                   isCorrect = true;
                   stopPracticePolling();
                   holdFill.style.width = "100%";
@@ -1398,31 +1402,21 @@
                   feedbackEl.className = "practice-feedback success-text";
                   feedbackEl.innerHTML = "✔ Correct! +10 XP";
 
-                  // Award XP for this sign
-                  awardXP(10, currentLessonKey, 1);
-
-                  // Auto-advance after 1.5s
                   setTimeout(() => {
                     pIndex++;
                     showPracticeCard();
-                  }, 1500);
+                  }, 1200);
                 } else {
                   feedbackEl.className = "practice-feedback success-text";
                   feedbackEl.innerHTML = `Hold steady... ${(HOLD_SECONDS - elapsed).toFixed(1)}s`;
                 }
               } else {
-                // Not matching — reset
                 matchStart = null;
                 holdFill.style.width = "0%";
                 holdFill.classList.remove("match");
-
-                if (prediction && prediction !== "—" && prediction !== "-") {
+                if (prediction && prediction !== "—" && prediction !== "SPACE") {
                   camWrap.classList.add("error");
-                  camWrap.classList.remove("success");
                   feedbackEl.className = "practice-feedback error-text";
-                  feedbackEl.textContent = "Not quite. Try again.";
-                } else {
-                  camWrap.classList.remove("error", "success");
                   feedbackEl.className = "practice-feedback";
                   feedbackEl.innerHTML = "&nbsp;";
                 }
