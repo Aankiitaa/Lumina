@@ -1323,18 +1323,21 @@
             <div class="practice-feedback" id="practiceFeedback">&nbsp;</div>
           </div>`;
           // Camera toggle handlers
-          document.getElementById("practiceShowCam").onclick = () => {
+          const showCamFn = () => {
             document.getElementById("practiceCamWrap").classList.add("expanded");
             document.getElementById("practiceVideo").style.display = "block";
             document.getElementById("practiceCamOff").style.display = "none";
             document.getElementById("practiceHideCam").style.display = "block";
           };
-          document.getElementById("practiceHideCam").onclick = () => {
+          const hideCamFn = () => {
             document.getElementById("practiceCamWrap").classList.remove("expanded");
             document.getElementById("practiceVideo").style.display = "none";
             document.getElementById("practiceCamOff").style.display = "flex";
             document.getElementById("practiceHideCam").style.display = "none";
           };
+          
+          document.getElementById("practiceShowCam").onclick = showCamFn;
+          document.getElementById("practiceHideCam").onclick = hideCamFn;
           actionArea.innerHTML = "";
           progressEl.textContent = `Practice: ${pIndex + 1} / ${pCards.length}`;
 
@@ -1342,14 +1345,19 @@
           const HOLD_SECONDS = 1.5;
           let isCorrect = false;
 
-          // Set up local camera manually
+          // Re-attach stream to the new video element created by innerHTML wipe
           const videoElement = document.getElementById("practiceVideo");
-          navigator.mediaDevices.getUserMedia({video: true}).then(stream => {
-              videoElement.srcObject = stream;
-              practiceCameraStarted = true;
-          }).catch(e => {
-              document.getElementById("practiceFeedback").innerHTML = `<span style="color:red">Camera error: ${e.message}</span>`;
-          });
+          if (window.practiceStream) {
+              videoElement.srcObject = window.practiceStream;
+          } else {
+              navigator.mediaDevices.getUserMedia({video: true}).then(stream => {
+                  window.practiceStream = stream;
+                  videoElement.srcObject = stream;
+                  practiceCameraStarted = true;
+              }).catch(e => {
+                  document.getElementById("practiceFeedback").innerHTML = `<span style="color:red">Camera error: ${e.message}</span>`;
+              });
+          }
 
           // Polling API logic
           stopPracticePolling();
@@ -1404,7 +1412,10 @@
 
                   setTimeout(() => {
                     pIndex++;
+                    // Keep existing camera state
+                    const isExpanded = document.getElementById("practiceCamWrap").classList.contains("expanded");
                     showPracticeCard();
+                    if (isExpanded) showCamFn(); else hideCamFn();
                   }, 1200);
                 } else {
                   feedbackEl.className = "practice-feedback success-text";
