@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "https://<YOUR-RENDER-APP-NAME>.onrender.com/$1"
+      "destination": "https://lumina-backend-6zge.onrender.com/$1"
     }
   ]
 }
