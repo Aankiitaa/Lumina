@@ -501,7 +501,7 @@
     let captureInterval = null;
     
     async function processFrame() {
-      if (!cameraVisible) return;
+      // Runs in background regardless of UI visibility
       const canvas = document.getElementById("captureCanvas");
       const video = document.getElementById("videoFeed");
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -547,23 +547,18 @@
         cameraVisible = true;
         
         if (captureInterval) clearInterval(captureInterval);
-        captureInterval = setInterval(processFrame, 150);
+        captureInterval = setInterval(processFrame, 180); // Slightly slower background polling
       } catch (err) {
         alert("Camera access denied.");
       }
     }
 
     function hideCamera() {
-      if (videoFeed.srcObject) {
-         videoFeed.srcObject.getTracks().forEach(t => t.stop());
-      }
-      videoFeed.srcObject = null;
       videoFeed.style.display = "none";
       cameraOffMsg.style.display = "flex";
-      fpsPill.style.display = "none";
       hideCamBtn.style.display = "none";
       cameraVisible = false;
-      if (captureInterval) clearInterval(captureInterval);
+      // Do NOT stop tracks or clear interval, keeping detection alive in background
     }
 
 
