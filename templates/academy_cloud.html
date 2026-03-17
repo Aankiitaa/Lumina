@@ -1361,18 +1361,20 @@
 
           // Polling API logic
           stopPracticePolling();
+          let isProcessing = false;
           practicePollingId = setInterval(async () => {
-            if (isCorrect) return;
+            if (isCorrect || isProcessing) return;
             const video = document.getElementById("practiceVideo");
             const canvas = document.getElementById("practiceCanvas");
             if (!video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) return;
             
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            canvas.width = 320;
+            canvas.height = 210;
             const ctx = canvas.getContext("2d");
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.5);
 
+            isProcessing = true;
             try {
               const res = await fetch("/api/process_frame", {
                   method: "POST",
@@ -1435,7 +1437,9 @@
                   feedbackEl.innerHTML = "&nbsp;";
                 }
               }
-            } catch (e) { /* polling error, ignore */ }
+            } catch (e) { /* polling error, ignore */ } finally {
+              isProcessing = false;
+            }
           }, 200);
         }
 

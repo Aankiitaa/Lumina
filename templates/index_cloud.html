@@ -485,19 +485,21 @@
 
 
 
-    let captureInterval = null;
-    
+    let isProcessing = false;
     async function processFrame() {
-      // Runs in background regardless of UI visibility
+      if (isProcessing) return;
+      
       const canvas = document.getElementById("captureCanvas");
       const video = document.getElementById("videoFeed");
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        // Downscale to 320x210 to save bandwidth and speed up Render processing
+        canvas.width = 320;
+        canvas.height = 210;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.5);
         
+        isProcessing = true;
         try {
           const r = await fetch("/api/process_frame", {
             method: "POST",
@@ -519,9 +521,13 @@
               holdBar.style.width = Math.round((d.hold_progress || 0) * 100) + "%";
             }
           }
-        } catch(e) {}
+        } catch(e) {} finally {
+          isProcessing = false;
+        }
       }
     }
+
+    let captureInterval = null;
 
     async function showCamera() {
       try {
