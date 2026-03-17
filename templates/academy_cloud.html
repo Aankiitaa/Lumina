@@ -1417,12 +1417,15 @@
                 if (prediction && prediction !== "—" && prediction !== "SPACE") {
                   camWrap.classList.add("error");
                   feedbackEl.className = "practice-feedback error-text";
+                  feedbackEl.innerHTML = `You signed <strong>${prediction}</strong>. Try again.`;
+                } else {
+                  camWrap.classList.remove("error");
                   feedbackEl.className = "practice-feedback";
                   feedbackEl.innerHTML = "&nbsp;";
                 }
               }
             } catch (e) { /* polling error, ignore */ }
-          }, 150);
+          }, 200);
         }
 
         showPracticeCard();

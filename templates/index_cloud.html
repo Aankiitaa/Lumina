@@ -520,10 +520,17 @@
           if (r.status === 401) { window.location.href = "/login"; return; }
           const d = await r.json();
           if (d.ok) {
-            document.getElementById("prediction").innerText = d.prediction || " ";
-            document.getElementById("sentence").innerText = d.sentence || " ";
-            fpsPill.innerText = "SYSTEM STABLE | FPS: " + (d.fps || 0);
-            holdBar.style.width = Math.round((d.hold_progress || 0) * 100) + "%";
+            if (d.mp_error && d.mp_error !== "") {
+              fpsPill.innerText = "ERROR: MediaPipe Failed";
+              fpsPill.style.color = "red";
+              document.getElementById("sentence").innerHTML = `<span style="color:red">Backend Error: ${d.mp_error}</span>`;
+            } else {
+              document.getElementById("prediction").innerText = d.prediction || " ";
+              document.getElementById("sentence").innerText = d.sentence || " ";
+              fpsPill.innerText = "SYSTEM STABLE | FPS: " + (d.fps || 0);
+              fpsPill.style.color = "var(--muted)";
+              holdBar.style.width = Math.round((d.hold_progress || 0) * 100) + "%";
+            }
           }
         } catch(e) {}
       }

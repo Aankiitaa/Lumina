@@ -487,7 +487,8 @@ def process_frame():
             "prediction": str(state.most_common).upper(),
             "sentence": state.sentence,
             "fps": state.fps,
-            "hold_progress": round(state.hold_progress, 3)
+            "hold_progress": round(state.hold_progress, 3),
+            "mp_error": mediapipe_error
         })
     except Exception as e:
         return jsonify({"ok": False, "message": str(e)}), 500
