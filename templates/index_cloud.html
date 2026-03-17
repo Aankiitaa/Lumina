@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumina Translator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F0EDEA;
+      --surface: #FFFFFF;
+      --surface2: #F7F5F2;
+      --text: #1A1A2E;
+      --muted: #7A7A8E;
+      --line: #E8E5E0;
+      --yellow: #F0E54F;
+      --yellow-hover: #e8dd4a;
+      --lavender: #9B7BFF;
+      --coral: #e85d3a;
+      --pink: #F5C6D0;
+      --deep-purple: #6C4AB6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .wrap {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 22px 18px 110px;
+    }
+
+    /* Top bar */
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .left {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chip,
+    .logout-btn {
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .chip:hover,
+    .logout-btn:hover {
+      background: var(--surface2);
+      border-color: var(--lavender);
+      box-shadow: 0 2px 8px rgba(155, 123, 255, 0.1);
+    }
+
+    .title-block {
+      margin: 28px 0 18px;
+      text-align: center;
+    }
+
+    .title {
+      font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Hero — lavender card */
+    .hero {
+      margin: 0 0 16px;
+      border-radius: 22px;
+      padding: 22px 26px;
+      background: var(--lavender);
+      color: #FFFFFF;
+    }
+
+    .hero h2 {
+      font-size: clamp(1.2rem, 2vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .hero p {
+      margin: 6px 0 0;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.88rem;
+    }
+
+    /* Main layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(330px, 0.85fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .video-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Video card */
+    .video-box {
+      border-radius: 22px;
+      padding: 12px;
+      position: relative;
+      min-height: 300px;
+      background: var(--surface);
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .video-box img {
+      width: 100%;
+      display: block;
+      border-radius: 16px;
+    }
+
+    .fps-pill {
+      position: absolute;
+      left: 20px;
+      bottom: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--line);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--muted);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Right panel */
+    .panel {
+      border-radius: 22px;
+      padding: 24px;
+      background: var(--surface);
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    #prediction {
+      margin: 8px 0 18px;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--deep-purple);
+    }
+
+    .sentence-view {
+      background: var(--surface2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      min-height: 140px;
+      padding: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    /* Controls */
+    .controls {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 20px;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+
+    .btn:hover {
+      opacity: 0.88;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-yellow {
+      background: var(--yellow);
+      color: #1A1A2E;
+      box-shadow: 0 2px 10px rgba(240, 229, 79, 0.25);
+    }
+
+    .btn-outline {
+      background: var(--surface);
+      color: var(--text);
+      border: 1.5px solid var(--line);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--lavender);
+      background: var(--surface2);
+    }
+
+    .stat-row {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .info-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: var(--surface2);
+    }
+
+    .info-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .info-value {
+      margin-top: 4px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 10px 12px;
+      z-index: 9;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+
+    .bottom-nav a:hover {
+      color: var(--lavender);
+    }
+
+    .bottom-nav a strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    @media (max-width: 920px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* --- Overlays --- */
+    .start-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: rgba(247, 245, 242, 0.92);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      z-index: 5;
+    }
+
+    .start-overlay p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+
+    .btn-start {
+      border: none;
+      border-radius: 999px;
+      padding: 14px 34px;
+      font: inherit;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      background: var(--yellow);
+      color: #1A1A2E;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 2px 12px rgba(240, 229, 79, 0.3);
+    }
+
+    .btn-start:hover {
+      background: var(--yellow-hover);
+      box-shadow: 0 4px 18px rgba(240, 229, 79, 0.4);
+    }
+
+    .btn-start:active {
+      transform: scale(0.97);
+    }
+
+    /* Floating hide-camera button */
+    .hide-cam-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 6;
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      background: rgba(26, 26, 46, 0.7);
+      color: #fff;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+
+    .hide-cam-btn:hover {
+      background: rgba(26, 26, 46, 0.85);
+    }
+
+    /* --- Progress bar --- */
+    .progress-wrap {
+      height: 5px;
+      border-radius: 999px;
+      background: var(--line);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--yellow);
+      transition: width 0.1s linear;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <div class="top">
+      <div class="left">
+        <a class="chip" href="/">HOME</a>
+        <a class="chip" href="/academy">ACADEMY</a>
+      </div>
+      <button class="logout-btn" id="logoutBtn">LOG OUT</button>
+    </div>
+
+    <header class="title-block">
+      <h1 class="title">Lumina Translator</h1>
+      <p class="sub">Real-time sign detection and sentence output.</p>
+    </header>
+
+    <section class="hero">
+      <h2>Live translation workspace</h2>
+      <p>Keep your hand visible in frame. Lumina captures steady signs and builds your sentence automatically.</p>
+    </section>
+
+    <section class="main-grid">
+      <div class="video-col">
+        <section class="video-box">
+          <div class="start-overlay" id="startOverlay">
+            <p>Translator is idle</p>
+            <button class="btn-start" id="startBtn">START TRANSLATING</button>
+          </div>
+          <div class="start-overlay" id="cameraOffMsg" style="display:none;">
+            <p>Translating without preview</p>
+            <button class="btn-start" id="showCamBtn">SHOW CAMERA</button>
+          </div>
+          <video autoplay playsinline id="videoFeed" style="display:none; width:100%; border-radius:16px; transform: scaleX(-1);"></video>
+          <canvas id="captureCanvas" style="display:none;"></canvas>
+          <button class="hide-cam-btn" id="hideCamBtn" style="display:none;">HIDE CAMERA</button>
+          <div class="fps-pill" id="fps" style="display:none;">FPS: --</div>
+        </section>
+        <div class="progress-wrap" id="progressWrap" style="display:none;">
+          <div class="progress-fill" id="holdBar"></div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <span class="label">Captured Symbol</span>
+        <h2 id="prediction">-</h2>
+
+        <span class="label">Translation Output</span>
+        <div class="sentence-view" id="sentence">Awaiting input...</div>
+
+        <div class="info-box" style="margin-top:16px;">
+          <div class="info-label">Mode</div>
+          <div class="info-value">Sign to Text + Voice</div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-yellow" id="speakBtn">SPEAK OUTPUT</button>
+          <button class="btn btn-outline" id="clearBtn">CLEAR</button>
+          <button class="btn btn-outline" id="deleteBtn">&#x232B; DELETE</button>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="/"><strong>Home</strong>Choose track</a>
+    <a href="/academy"><strong>Practice</strong>Academy</a>
+    <a href="/translator"><strong>Translator</strong>Live camera</a>
+  </nav>
+
+  <script>
+    sessionStorage.removeItem("lumina_on_auth");
+
+    async function trigger(path) {
+      const r = await fetch(path, { method: "POST" });
+      if (r.status === 401) window.location.href = "/login";
+    }
+
+    const startOverlay = document.getElementById("startOverlay");
+    const cameraOffMsg = document.getElementById("cameraOffMsg");
+    const videoFeed = document.getElementById("videoFeed");
+    const startBtn = document.getElementById("startBtn");
+    const showCamBtn = document.getElementById("showCamBtn");
+    const holdBar = document.getElementById("holdBar");
+    const progressWrap = document.getElementById("progressWrap");
+    const fpsPill = document.getElementById("fps");
+    const hideCamBtn = document.getElementById("hideCamBtn");
+
+    let cameraVisible = false;
+
+    startBtn.addEventListener("click", async () => {
+      startBtn.textContent = "Starting...";
+      startBtn.disabled = true;
+      const r = {ok: true, status: 200}; // mocked for cloud
+      if (r.status === 401) { window.location.href = "/login"; return; }
+      if (r.ok) {
+        startOverlay.style.display = "none";
+        cameraOffMsg.style.display = "flex";
+        progressWrap.style.display = "block";
+      } else {
+        startBtn.textContent = "Failed — retry";
+        startBtn.disabled = false;
+      }
+    });
+
+
+    let captureInterval = null;
+    
+    async function processFrame() {
+      if (!cameraVisible) return;
+      const canvas = document.getElementById("captureCanvas");
+      const video = document.getElementById("videoFeed");
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+        
+        try {
+          const r = await fetch("/api/process_frame", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ image: dataUrl })
+          });
+          if (r.status === 401) { window.location.href = "/login"; return; }
+          const d = await r.json();
+          if (d.ok) {
+            document.getElementById("prediction").innerText = d.prediction || " ";
+            document.getElementById("sentence").innerText = d.sentence || " ";
+            fpsPill.innerText = "SYSTEM STABLE | FPS: " + (d.fps || 0);
+            holdBar.style.width = Math.round((d.hold_progress || 0) * 100) + "%";
+          }
+        } catch(e) {}
+      }
+    }
+
+    async function showCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({video: true});
+        videoFeed.srcObject = stream;
+        videoFeed.style.display = "block";
+        cameraOffMsg.style.display = "none";
+        fpsPill.style.display = "block";
+        hideCamBtn.style.display = "block";
+        cameraVisible = true;
+        
+        if (captureInterval) clearInterval(captureInterval);
+        captureInterval = setInterval(processFrame, 150);
+      } catch (err) {
+        alert("Camera access denied.");
+      }
+    }
+
+    function hideCamera() {
+      if (videoFeed.srcObject) {
+         videoFeed.srcObject.getTracks().forEach(t => t.stop());
+      }
+      videoFeed.srcObject = null;
+      videoFeed.style.display = "none";
+      cameraOffMsg.style.display = "flex";
+      fpsPill.style.display = "none";
+      hideCamBtn.style.display = "none";
+      cameraVisible = false;
+      if (captureInterval) clearInterval(captureInterval);
+    }
+
+
+    showCamBtn.addEventListener("click", showCamera);
+    hideCamBtn.addEventListener("click", hideCamera);
+
+    async function sync() {
+      try {
+        const r = await fetch("/status");
+        if (r.status === 401) { window.location.href = "/login"; return; }
+        const d = await r.json();
+        document.getElementById("prediction").innerText = d.prediction || " ";
+        document.getElementById("sentence").innerText = d.sentence || " ";
+        if (cameraVisible) {
+          fpsPill.innerText = "SYSTEM STABLE | FPS: " + (d.fps ?? 0);
+        }
+        holdBar.style.width = Math.round((d.hold_progress ?? 0) * 100) + "%";
+      } catch { }
+    }
+
+    document.getElementById("speakBtn").onclick = () => trigger("/action/speak");
+    document.getElementById("clearBtn").onclick = () => trigger("/action/clear");
+    document.getElementById("deleteBtn").onclick = () => trigger("/action/delete");
+
+    // setInterval(sync, 120); removed for cloud compute
+
+    // Logout with splash
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      const splash = document.getElementById("logoutSplash");
+      splash.style.display = "grid";
+      await fetch("/logout", { method: "POST" });
+      sessionStorage.setItem("lumina_on_auth", "1");
+      setTimeout(() => { window.location.href = "/login"; }, 1600);
+    });
+  </script>
+
+  <div id="logoutSplash" style="position:fixed;inset:0;display:none;place-items:center;background:#9B7BFF;z-index:100;">
+    <div style="text-align:center;">
+      <h1 style="font-size:clamp(2.6rem,10vw,4.8rem);font-weight:700;letter-spacing:0.12em;color:#FFFFFF;margin:0;">
+        LUMINA</h1>
+      <p style="margin:8px 0 0;color:rgba(255,255,255,0.75);font-size:0.92rem;font-weight:500;letter-spacing:0.06em;">SIGN LANGUAGE
+        TRANSLATOR + ACADEMY</p>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,1552 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumina Academy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F0EDEA;
+      --surface: #FFFFFF;
+      --surface2: #F7F5F2;
+      --text: #1A1A2E;
+      --muted: #7A7A8E;
+      --line: #E8E5E0;
+      
+      /* Accents from Langvi style */
+      --yellow: #F0E54F;
+      --yellow-hover: #e8dd4a;
+      --lavender: #9B7BFF;
+      --mint: #BFFF00; /* lime green */
+      --sky: #89CFF0; /* sky blue */
+      --coral: #F5C6D0; /* pink */
+      
+      --accent: var(--lavender);
+      --completed: #59cf90;
+    }
+
+    * { box-sizing: border-box; margin: 0; }
+    
+    body {
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(240, 229, 79, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(155, 123, 255, 0.1) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    .wrap {
+      width: min(1080px, 100%);
+      margin: 0 auto;
+      padding: 22px 18px 120px;
+    }
+
+    #academyWrap { display: block; }
+
+    /* Top Navigation bar */
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .chip,
+    .logout-btn {
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .chip:hover,
+    .logout-btn:hover {
+      background: var(--surface2);
+      border-color: var(--lavender);
+      box-shadow: 0 2px 8px rgba(155, 123, 255, 0.1);
+    }
+
+    .gamification-stats {
+      display: flex;
+      gap: 8px;
+    }
+
+    .stat-chip {
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .stat-xp { color: var(--yellow-hover); }
+    .stat-streak { color: #E85D3A; }
+
+    /* Title section */
+    .title-block {
+      margin-bottom: 40px;
+    }
+
+    .title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    /* Stack / List view */
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 24px 30px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      border: 2px solid transparent;
+    }
+
+    /* Lesson Colors - Left strip */
+    .card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+    }
+    
+    .card.c1::before { background: var(--lavender); }
+    .card.c2::before { background: var(--mint); }
+    .card.c3::before { background: var(--sky); }
+    .card.c4::before { background: var(--coral); }
+    .card.c5::before { background: var(--yellow); }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+    }
+    
+    .card.c1:hover { border-color: rgba(155, 123, 255, 0.3); }
+    .card.c2:hover { border-color: rgba(191, 255, 0, 0.3); }
+    .card.c3:hover { border-color: rgba(137, 207, 240, 0.3); }
+    .card.c4:hover { border-color: rgba(245, 198, 208, 0.3); }
+    .card.c5:hover { border-color: rgba(240, 229, 79, 0.3); }
+
+    .card.locked {
+      background: var(--surface2);
+      opacity: 0.6;
+      cursor: not-allowed;
+      filter: grayscale(0.8);
+      border-color: transparent;
+    }
+
+    .card.locked:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .card h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      background: var(--surface2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .card-progress-wrap {
+      width: 100%;
+      max-width: 400px;
+      height: 6px;
+      background: var(--surface2);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .card-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--lavender);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+    
+    .card.c1 .card-progress-bar { background: var(--lavender); }
+    .card.c2 .card-progress-bar { background: var(--mint); }
+    .card.c3 .card-progress-bar { background: var(--sky); }
+    .card.c4 .card-progress-bar { background: var(--coral); }
+    .card.c5 .card-progress-bar { background: var(--yellow); }
+
+    .card.completed .card-progress-wrap {
+      background: rgba(89, 207, 144, 0.15);
+    }
+
+    .card.completed .card-progress-bar {
+      background: var(--completed);
+    }
+
+    /* Replace emoji locks/checks with CSS signs */
+    .card.locked::after {
+      content: "🔒"; /* Temporarily fallback or use SVG */
+      position: absolute;
+      right: 32px;
+      font-size: 1.8rem;
+      filter: grayscale(1);
+    }
+
+    .card.completed::after {
+      content: "✓"; /* Checkmark symbol */
+      position: absolute;
+      right: 32px;
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--completed);
+      background: rgba(89, 207, 144, 0.15);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-arrow {
+      width: 44px;
+      height: 44px;
+      background: var(--surface2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      margin-left: 20px;
+    }
+    
+    .card.locked .card-arrow,
+    .card.completed .card-arrow {
+      display: none;
+    }
+
+    .card-arrow::after {
+      content: "↗";
+      font-size: 1.2rem;
+      color: var(--text);
+    }
+
+    .card:hover .card-arrow {
+      background: var(--surface);
+      transform: scale(1.1) rotate(15deg);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* ─── FLASHCARD MODAL ─── */
+    .fc-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 26, 46, 0.4);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .fc-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .fc-modal {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .fc-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: all 0.2s;
+      z-index: 5;
+    }
+
+    .fc-close:hover {
+      background: rgba(232, 93, 58, 0.1);
+      color: var(--coral);
+      transform: scale(1.1);
+    }
+
+    .fc-card {
+      position: relative;
+      width: 420px;
+      background: var(--surface);
+      border-radius: 28px;
+      padding: 50px 28px 28px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12), 0 0 1px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .fc-card.accent-lavender { --accent: #9B7BFF; }
+    .fc-card.accent-mint { --accent: #BFFF00; }
+    .fc-card.accent-sky { --accent: #89CFF0; }
+    .fc-card.accent-coral { --accent: #F5C6D0; }
+    .fc-card.accent-yellow { --accent: #F0E54F; }
+
+    .fc-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: var(--accent);
+    }
+
+    .fc-slide {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    }
+
+    .fc-slide.slide-left-out { transform: translateX(-60%); opacity: 0; }
+    .fc-slide.slide-right-out { transform: translateX(60%); opacity: 0; }
+    .fc-slide.slide-left-in { animation: slideInFromRight 0.3s ease forwards; }
+    .fc-slide.slide-right-in { animation: slideInFromLeft 0.3s ease forwards; }
+
+    @keyframes slideInFromRight {
+      from { transform: translateX(40%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideInFromLeft {
+      from { transform: translateX(-40%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .fc-image-container {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 16px;
+      display: grid;
+      place-items: center;
+      background: var(--surface2);
+      border-radius: 24px;
+      padding: 10px;
+      border: 1px solid var(--line);
+    }
+
+    .fc-real-image {
+      max-width: 130px;
+      max-height: 130px;
+      object-fit: contain;
+      display: none;
+    }
+
+    .fc-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      display: grid;
+      place-items: center;
+      background: url('/static/Poster Design/8.png') center/contain no-repeat;
+      opacity: 0.15;
+    }
+
+    .fc-desc {
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: var(--surface2);
+      border-radius: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .fc-desc strong { color: var(--text); }
+
+    .fc-label {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-top: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .fc-progress {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .fc-dots {
+      margin: 12px auto 0;
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      max-width: 300px;
+    }
+
+    .fc-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--line);
+      transition: all 0.25s ease;
+    }
+
+    .fc-dot.active {
+      background: var(--accent);
+      transform: scale(1.4);
+    }
+
+    .fc-nav-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .fc-nav-btn svg { width: 24px; height: 24px; }
+
+    .fc-nav-btn:hover:not(:disabled) {
+      transform: scale(1.1);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .fc-nav-btn:active:not(:disabled) { transform: scale(0.95); }
+    .fc-nav-btn:disabled { opacity: 0.2; cursor: not-allowed; box-shadow: none; }
+
+    @media (max-width: 680px) {
+      .fc-modal { flex-direction: column; gap: 20px; }
+      .fc-card { width: min(92vw, 400px); padding: 50px 20px 20px; }
+      .fc-nav-btn { width: 48px; height: 48px; }
+    }
+
+    /* ─── CELEBRATION MODAL ─── */
+    .cel-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 210;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(26, 26, 46, 0.4);
+      backdrop-filter: blur(12px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .cel-overlay.open { opacity: 1; visibility: visible; }
+
+    .cel-modal {
+      background: var(--surface);
+      border: 2px solid var(--completed);
+      border-radius: 32px;
+      padding: 48px 32px;
+      width: min(90%, 400px);
+      text-align: center;
+      transform: translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 24px 60px rgba(89, 207, 144, 0.2);
+    }
+
+    .cel-overlay.open .cel-modal { transform: translateY(0); }
+
+    .cel-icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .cel-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .cel-stats {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin: 24px 0;
+    }
+
+    .cel-stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cel-stat-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--lavender);
+    }
+
+    .cel-stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .cel-btn {
+      background: var(--completed);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 999px;
+      padding: 16px 32px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cel-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(89, 207, 144, 0.3);
+    }
+
+    /* Step Indicators in Modal */
+    .fc-steps {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .fc-step {
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--surface2);
+      border: 1px solid var(--line);
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .fc-step.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #FFFFFF;
+    }
+
+    .fc-step.done {
+      border-color: var(--completed);
+      color: var(--completed);
+      background: rgba(89, 207, 144, 0.1);
+    }
+
+    .fc-quiz-options {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .fc-quiz-opt {
+      background: var(--surface2);
+      border: 2px solid var(--line);
+      padding: 14px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .fc-quiz-opt:hover {
+      border-color: var(--accent);
+      transform: scale(1.02);
+    }
+
+    .fc-quiz-opt.correct {
+      background: rgba(89, 207, 144, 0.1);
+      border-color: var(--completed);
+      color: #2e8b57;
+    }
+
+    .fc-quiz-opt.wrong {
+      background: rgba(232, 93, 58, 0.1);
+      border-color: var(--coral);
+      color: var(--coral);
+    }
+
+    /* ─── PRACTICE CAMERA MODE ─── */
+    .practice-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .practice-target {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      letter-spacing: 0.04em;
+    }
+
+    .practice-instruction {
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .practice-camera-wrap {
+      position: relative;
+      width: 260px;
+      height: 80px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid var(--line);
+      background: var(--surface2);
+      transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .practice-camera-wrap.expanded {
+      width: 300px;
+      height: 220px;
+      border-radius: 20px;
+      border-width: 3px;
+    }
+
+    .practice-camera-wrap.success {
+      border-color: var(--completed);
+      box-shadow: 0 0 20px rgba(89, 207, 144, 0.3);
+    }
+
+    .practice-camera-wrap.error {
+      border-color: var(--coral);
+      box-shadow: 0 0 16px rgba(232, 93, 58, 0.2);
+    }
+
+    .practice-camera-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .practice-camera-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(4px);
+      border-radius: 14px;
+      z-index: 2;
+    }
+
+    .practice-camera-overlay.hidden { display: none; }
+
+    .practice-camera-starting {
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .practice-cam-toggle {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 22px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      background: var(--yellow);
+      color: #1A1A2E;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(240, 229, 79, 0.3);
+    }
+
+    .practice-cam-toggle:hover {
+      background: var(--yellow-hover);
+      transform: translateY(-1px);
+    }
+
+    .practice-cam-toggle:active { transform: scale(0.97); }
+
+    .practice-cam-hide {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 3;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--text);
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .practice-cam-hide:hover {
+      background: #FFFFFF;
+    }
+
+    .practice-hold-bar {
+      width: 80%;
+      height: 6px;
+      background: var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .practice-hold-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--accent);
+      transition: width 0.15s linear, background 0.3s;
+    }
+
+    .practice-hold-fill.match { background: var(--completed); }
+
+    .practice-feedback {
+      font-size: 0.85rem;
+      font-weight: 700;
+      min-height: 28px;
+      text-align: center;
+      transition: opacity 0.3s;
+    }
+    .practice-feedback.success-text { color: var(--completed); }
+    .practice-feedback.error-text { color: var(--coral); }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 10px 12px;
+      z-index: 9;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+
+    .bottom-nav a:hover { color: var(--lavender); }
+    .bottom-nav a strong { display: block; color: var(--text); margin-bottom: 2px; }
+
+</style>
+</head>
+
+<body>
+  <main class="wrap" id="academyWrap">
+    <div class="top">
+      <div style="display:flex;gap:10px;align-items:center;">
+        <a class="chip" href="/">HOME</a>
+        <div class="gamification-stats">
+          <div class="stat-chip stat-xp" title="Total XP Earned">
+            <span style="color:var(--yellow-hover)">★</span> <span id="headerXP">0</span>
+          </div>
+          <div class="stat-chip stat-streak" title="Daily streak">
+            <span style="color:var(--coral)">●</span> <span id="headerStreak">0</span>
+          </div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">LOG OUT</button>
+    </div>
+    <header class="title-block">
+      <h1 class="title">Lumina Academy</h1>
+      <p class="sub">Structured sign language curriculum.</p>
+    </header>
+
+
+    <section class="stack">
+      <article class="card c1" data-lesson="alphabet" role="button" tabindex="0" aria-label="Alphabet Mastery">
+        <div class="card-info">
+          <h3>Alphabet Mastery</h3>
+          <div class="tags"><span class="tag">Foundation</span><span class="tag">Finger Spelling</span><span
+              class="tag">A–Z</span></div>
+          <div class="card-progress-wrap">
+            <div class="card-progress-bar" id="prog-alphabet"></div>
+          </div>
+        </div>
+        <div class="card-arrow"></div>
+      </article>
+      <article class="card c2" data-lesson="numbers" role="button" tabindex="0" aria-label="Number Basics">
+        <div class="card-info">
+          <h3>Number Basics</h3>
+          <div class="tags"><span class="tag">Essential</span><span class="tag">1–10</span><span
+              class="tag">Counting</span></div>
+          <div class="card-progress-wrap">
+            <div class="card-progress-bar" id="prog-numbers"></div>
+          </div>
+        </div>
+        <div class="card-arrow"></div>
+      </article>
+      <article class="card c3" data-lesson="greetings" role="button" tabindex="0" aria-label="Essential Greetings">
+        <div class="card-info">
+          <h3>Essential Greetings</h3>
+          <div class="tags"><span class="tag">Conversational</span><span class="tag">Small Talk</span><span
+              class="tag">Daily Use</span></div>
+          <div class="card-progress-wrap">
+            <div class="card-progress-bar" id="prog-greetings"></div>
+          </div>
+        </div>
+        <div class="card-arrow"></div>
+      </article>
+      <article class="card c4" data-lesson="family" role="button" tabindex="0" aria-label="Family & People">
+        <div class="card-info">
+          <h3>Family & People</h3>
+          <div class="tags"><span class="tag">Relationships</span><span class="tag">Family Members</span><span
+              class="tag">Identity</span></div>
+          <div class="card-progress-wrap">
+            <div class="card-progress-bar" id="prog-family"></div>
+          </div>
+        </div>
+        <div class="card-arrow"></div>
+      </article>
+      <article class="card c5" data-lesson="questions" role="button" tabindex="0" aria-label="Questions & Phrases">
+        <div class="card-info">
+          <h3>Questions & Phrases</h3>
+          <div class="tags"><span class="tag">Intermediate</span><span class="tag">7 Pillars</span><span
+              class="tag">Common Queries</span></div>
+          <div class="card-progress-wrap">
+            <div class="card-progress-bar" id="prog-questions"></div>
+          </div>
+        </div>
+        <div class="card-arrow"></div>
+      </article>
+    </section>
+  </main>
+
+  <!-- UNIVERSAL FLASHCARD MODAL -->
+  <div class="fc-overlay" id="fcOverlay" role="dialog" aria-modal="true" aria-label="Flashcard viewer">
+    <div class="fc-modal">
+      <button class="fc-nav-btn fc-nav-prev" id="fcPrev" aria-label="Previous sign">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="fc-card" id="fcCard">
+        <div class="fc-steps" id="fcSteps">
+          <div class="fc-step active" data-step="0">LEARN</div>
+          <div class="fc-step" data-step="1">PRACTICE</div>
+          <div class="fc-step" data-step="2">QUIZ</div>
+        </div>
+        <button class="fc-close" id="fcClose" aria-label="Close">✕</button>
+        <div class="fc-slide" id="fcSlide">
+          <!-- Content injected by JS -->
+        </div>
+        <div class="fc-progress" id="fcProgress"></div>
+        <div class="fc-dots" id="fcDots"></div>
+        <div id="fcActionArea" style="margin-top:24px;"></div>
+      </div>
+      <button class="fc-nav-btn fc-nav-next" id="fcNext" aria-label="Next sign">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- CELEBRATION MODAL -->
+  <div class="cel-overlay" id="celOverlay" role="dialog" aria-modal="true">
+    <div class="cel-modal">
+      <img src="/static/Poster Design/3.png" class="cel-icon" alt="Celebration" style="width: 72px; height: 72px; margin: 0 auto 16px;" />
+      <h2 class="cel-title">Lesson Complete!</h2>
+      <p class="sub">You're making great progress.</p>
+
+      <div class="cel-stats">
+        <div class="cel-stat-item">
+          <span class="cel-stat-val" id="celXP">+50</span>
+          <span class="cel-stat-label">XP earned</span>
+        </div>
+        <div class="cel-stat-item">
+          <span class="cel-stat-val" id="celStreak">0</span>
+          <span class="cel-stat-label">Day Streak</span>
+        </div>
+      </div>
+
+      <button class="cel-btn" id="celContinue">CONTINUE</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <nav class="bottom-nav">
+    <a href="/"><strong>Home</strong>Choose track</a>
+    <a href="/academy"><strong>Practice</strong>Academy</a>
+    <a href="/translator"><strong>Translator</strong>Live camera</a>
+  </nav>
+
+  <div id="logoutSplash" style="position:fixed;inset:0;display:none;place-items:center;background:#9B7BFF;z-index:200;">
+    <div style="text-align:center;">
+      <h1 style="font-size:clamp(2.6rem,10vw,4.8rem);font-weight:700;letter-spacing:0.12em;color:#FFFFFF;margin:0;">
+        LUMINA</h1>
+      <p style="margin:8px 0 0;color:rgba(255,255,255,0.75);font-size:0.92rem;font-weight:500;letter-spacing:0.06em;">SIGN LANGUAGE
+        TRANSLATOR + ACADEMY</p>
+    </div>
+  </div>
+
+  <script>
+    // ─── Logout ───
+    sessionStorage.removeItem("lumina_on_auth");
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      const splash = document.getElementById("logoutSplash");
+      splash.style.display = "grid";
+      await fetch("/logout", { method: "POST" });
+      sessionStorage.setItem("lumina_on_auth", "1");
+      setTimeout(() => { window.location.href = "/login"; }, 1600);
+    });
+
+    // ═══════════════════════════════════════════
+    // LESSON DATA (sourced from ASL For Dummies)
+    // ═══════════════════════════════════════════
+    const LESSONS = {
+      alphabet: {
+        accent: "accent-lavender",
+        cards: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map(l => ({
+          label: l,
+          desc: `The ASL handshape for the letter <strong>'${l}'</strong>.`
+        }))
+      },
+
+      numbers: {
+        accent: "accent-mint",
+        cards: [
+          { label: "1", desc: "<strong>Index finger up.</strong> Make a fist with your palm facing you, then extend your index finger straight up." },
+          { label: "2", desc: "<strong>Index + middle finger up.</strong> Extend your index and middle fingers in a 'V' shape, palm facing out." },
+          { label: "3", desc: "<strong>Thumb + index + middle.</strong> Extend your thumb, index, and middle fingers while keeping ring and pinky folded." },
+          { label: "4", desc: "<strong>Four fingers up.</strong> Extend all four fingers (index through pinky) with your thumb tucked into your palm." },
+          { label: "5", desc: "<strong>All five fingers spread.</strong> Open your hand wide with all five fingers extended and spread apart, palm facing out." },
+          { label: "6", desc: "<strong>Pinky + thumb touch.</strong> Extend your pinky and thumb while folding your three middle fingers down. Tap your pinky to your thumb." },
+          { label: "7", desc: "<strong>Ring finger + thumb touch.</strong> Fold your ring finger down to touch your thumb tip while keeping other fingers extended." },
+          { label: "8", desc: "<strong>Middle finger + thumb touch.</strong> Fold your middle finger down to meet your thumb while keeping other fingers extended." },
+          { label: "9", desc: "<strong>Index + thumb touch.</strong> Touch your index finger tip to your thumb tip (like an 'OK' sign) while keeping other fingers extended." },
+          { label: "10", desc: "<strong>Shake your thumb.</strong> Make a fist with your thumb extended upward (thumbs-up), then twist/shake your wrist side to side." }
+        ]
+      },
+
+      greetings: {
+        accent: "accent-sky",
+        cards: [
+          { label: "Hello", emoji: "👋", desc: "<strong>Wave or salute.</strong> Place your open hand near your forehead (like a salute), then move it outward away from your head in a small arc." },
+          { label: "Goodbye", emoji: "🫡", desc: "<strong>Wave goodbye.</strong> Open your hand and fold your fingers down repeatedly, like a natural waving 'bye-bye' motion." },
+          { label: "Thank You", emoji: "🙏", desc: "<strong>Chin to forward.</strong> Touch your fingertips to your chin with a flat hand, then move your hand forward and slightly down, as if blowing a kiss of gratitude." },
+          { label: "Please", emoji: "🤲", desc: "<strong>Circle on chest.</strong> Place your flat, open hand on your chest and move it in a circular motion (clockwise from your perspective)." },
+          { label: "Sorry", emoji: "😔", desc: "<strong>Fist on chest.</strong> Make a fist (with an 'A' handshape) and rub it in a circular motion over your heart/chest." },
+          { label: "Yes", emoji: "✅", desc: "<strong>Nod your fist.</strong> Make a fist (like the letter 'S') and move it up and down, mimicking a nodding head." },
+          { label: "No", emoji: "❌", desc: "<strong>Snap fingers together.</strong> Extend your index and middle fingers and snap them together against your thumb quickly, like a mouth closing." },
+          { label: "How Are You?", emoji: "💬", desc: "<strong>Two-part sign.</strong> First sign 'HOW' — both hands facing down, knuckles together, roll outward. Then point at the person ('YOU') with your index finger." },
+          { label: "Nice to Meet You", emoji: "🤝", desc: "<strong>Three-part sign.</strong> Sign 'NICE' — slide one palm across the other. Then 'MEET' — bring two index fingers together. Then point at the person ('YOU')." },
+          { label: "My Name Is...", emoji: "🏷️", desc: "<strong>Two-part sign.</strong> First: 'MY' — place your flat hand on your chest. Then: 'NAME' — tap your two-finger 'H' hand on top of the other 'H' hand twice, like a name badge." }
+        ]
+      },
+
+      family: {
+        accent: "accent-coral",
+        cards: [
+          { label: "Mom", emoji: "👩", desc: "<strong>Thumb on chin.</strong> With an open hand (fingers spread), tap your thumb on your chin twice. The chin area represents female signs in ASL." },
+          { label: "Dad", emoji: "👨", desc: "<strong>Thumb on forehead.</strong> With an open hand (fingers spread), tap your thumb on your forehead twice. The forehead area represents male signs in ASL." },
+          { label: "Sister", emoji: "👧", desc: "<strong>Chin + together.</strong> Start with an 'L' shape at your chin (female indicator), then bring both hands together with index fingers pointing forward." },
+          { label: "Brother", emoji: "👦", desc: "<strong>Forehead + together.</strong> Start with an 'L' shape at your forehead (male indicator), then bring both hands together with index fingers pointing forward." },
+          { label: "Baby", emoji: "👶", desc: "<strong>Rock the baby.</strong> Place one arm on top of the other as if cradling a baby, then rock your arms side to side gently." },
+          { label: "Grandma", emoji: "👵", desc: "<strong>Two-bounce from chin.</strong> Start with an open '5' hand at your chin (MOM), then bounce it away from your face in two small hops." },
+          { label: "Grandpa", emoji: "👴", desc: "<strong>Two-bounce from forehead.</strong> Start with an open '5' hand at your forehead (DAD), then bounce it away from your face in two small hops." },
+          { label: "Family", emoji: "👨‍👩‍👧‍👦", desc: "<strong>Circle of F's.</strong> With both hands making the letter 'F' (thumb and index touching), start with them in front and trace a circle outward until your pinkies touch." },
+          { label: "Friend", emoji: "🫂", desc: "<strong>Hook index fingers.</strong> Hold up both index fingers in 'X' shapes (hooked). Link them together one way, then flip and link the other way." },
+          { label: "Love", emoji: "❤️", desc: "<strong>Cross arms on chest.</strong> Cross both arms over your chest, fists closed, as if giving yourself a hug. This is the sign for deep love or affection." }
+        ]
+      },
+
+      questions: {
+        accent: "accent-yellow",
+        cards: [
+          { label: "Who", emoji: "🔍", desc: "<strong>Circle around mouth.</strong> Pucker your lips and circle your index finger around your mouth. Raise your eyebrows — question expressions are crucial in ASL!" },
+          { label: "What", emoji: "❓", desc: "<strong>Palms-up shake.</strong> Hold both hands out, palms up, and shake them side to side slightly. Furrow your brows and tilt your head forward." },
+          { label: "Where", emoji: "📍", desc: "<strong>Wag index finger.</strong> Hold up your index finger and wag it side to side (like saying 'nuh-uh' in reverse). Raise your eyebrows." },
+          { label: "When", emoji: "⏰", desc: "<strong>Circle then touch.</strong> Point your index finger, circle it around the tip of your other index finger, then land on it. Raise your eyebrows." },
+          { label: "Why", emoji: "🤔", desc: "<strong>Forehead to Y.</strong> Touch your forehead with your fingertips, then pull your hand away while forming the letter 'Y' (thumb and pinky out). Your face should look puzzled." },
+          { label: "How", emoji: "⚙️", desc: "<strong>Knuckles roll outward.</strong> Place both fists together (knuckles touching, fingers facing down), then roll them forward and outward, ending with palms facing up." },
+          { label: "Which", emoji: "⚖️", desc: "<strong>Alternate thumbs up.</strong> Hold both hands in a thumbs-up / 'A' handshape. Alternate moving them up and down, as if weighing two options." }
+        ]
+      }
+    };
+
+    // ═══════════════════════════════════════
+    //  GAMIFICATION ENGINE
+    // ═══════════════════════════════════════
+    (() => {
+      let currentLessonKey = null;
+      let currentCards = [];
+      let currentIndex = 0;
+      let currentStep = 0; // 0=LEARN, 1=PRACTICE, 2=QUIZ
+      let isAnimating = false;
+      let practicePollingId = null; // polling interval for practice mode
+      let practiceCameraStarted = false;
+
+      let userStats = { xp: 0, streak: 0 };
+      let lessonProgress = {};
+      let unlockedLessons = ["alphabet"];
+
+      const overlay = document.getElementById("fcOverlay");
+      const card = document.getElementById("fcCard");
+      const slide = document.getElementById("fcSlide");
+      const progressEl = document.getElementById("fcProgress");
+      const dotsContainer = document.getElementById("fcDots");
+      const prevBtn = document.getElementById("fcPrev");
+      const nextBtn = document.getElementById("fcNext");
+      const closeBtn = document.getElementById("fcClose");
+      const actionArea = document.getElementById("fcActionArea");
+      const stepElements = document.querySelectorAll(".fc-step");
+
+      const celOverlay = document.getElementById("celOverlay");
+      const celXP = document.getElementById("celXP");
+      const celStreak = document.getElementById("celStreak");
+      const celContinue = document.getElementById("celContinue");
+
+      // ─── Backend Sync ───
+      async function syncStats() {
+        try {
+          const res = await fetch("/api/gamification/stats");
+          const data = await res.json();
+          userStats.xp = data.xp;
+          userStats.streak = data.streak;
+          lessonProgress = data.progress;
+          unlockedLessons = data.unlocked;
+          updateHeader();
+          updateDashboard();
+        } catch (e) { console.error("Sync failed", e); }
+      }
+
+      function updateHeader() {
+        document.getElementById("headerXP").textContent = userStats.xp;
+        document.getElementById("headerStreak").textContent = userStats.streak;
+      }
+
+      function updateDashboard() {
+        const order = ["alphabet", "numbers", "greetings", "family", "questions"];
+        order.forEach(key => {
+          const cardEl = document.querySelector(`.card[data-lesson="${key}"]`);
+          const progBar = document.getElementById(`prog-${key}`);
+          const progVal = lessonProgress[key] || 0;
+
+          if (progBar) progBar.style.width = progVal + "%";
+
+          if (cardEl) {
+            cardEl.classList.toggle("locked", !unlockedLessons.includes(key));
+            cardEl.classList.toggle("completed", progVal === 100);
+          }
+        });
+      }
+
+      async function awardXP(amount, lessonKey, stepIdx) {
+        try {
+          const res = await fetch("/api/gamification/update_progress", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lesson_key: lessonKey, step_index: stepIdx, xp: amount })
+          });
+          const data = await res.json();
+          userStats.xp += amount;
+          userStats.streak = data.streak;
+          updateHeader();
+          return data;
+        } catch (e) { console.error("XP award failed", e); }
+      }
+
+      // ─── Engine Logic ───
+      function buildDots(count) {
+        dotsContainer.innerHTML = "";
+        for (let i = 0; i < count; i++) {
+          const dot = document.createElement("div");
+          dot.className = "fc-dot";
+          dotsContainer.appendChild(dot);
+        }
+      }
+
+      function renderCardContent(item) {
+        // Try to load the image from our new route. 
+        // We use an <img> tag with an onerror handler to fall back to the placeholder.
+        const imageUrl = `/sign_image/${encodeURIComponent(item.label)}`;
+
+        return `
+          <div class="fc-image-container">
+            <img src="${imageUrl}" 
+                 alt="${item.label}" 
+                 class="fc-real-image" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
+                 onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+            <div class="fc-placeholder" style="display: none;"></div>
+          </div>
+          <div class="fc-label">${item.label}</div>
+          <div class="fc-desc">${item.desc}</div>`;
+      }
+
+      function updateStepUI() {
+        stepElements.forEach((el, i) => {
+          el.className = "fc-step" + (i === currentStep ? " active" : (i < currentStep ? " done" : ""));
+        });
+      }
+
+      function showStep(stepIdx) {
+        currentStep = stepIdx;
+        updateStepUI();
+        currentIndex = 0;
+        actionArea.innerHTML = "";
+        slide.style.opacity = 1;
+
+        if (stepIdx === 0) {
+          // LEARN
+          buildDots(currentCards.length);
+          updateCard(0);
+          toggleNavs(true);
+        } else if (stepIdx === 1) {
+          // PRACTICE — Interactive Camera Mode
+          stopPracticePolling();
+          toggleNavs(false);
+          dotsContainer.innerHTML = "";
+          progressEl.textContent = "Step 2: Interactive Practice";
+          slide.innerHTML = `<div class="practice-layout">
+            <div class="fc-label" style="font-size:1.6rem;margin-bottom:4px;">Interactive Practice</div>
+            <p class="fc-desc" style="margin-top:0;">Sign each letter to your camera. The model will verify your signs in real-time.</p>
+          </div>`;
+          actionArea.innerHTML = `<button class="cel-btn" id="startPractice">START CAMERA & PRACTICE</button>`;
+          document.getElementById("startPractice").onclick = startPracticeLoop;
+        } else if (stepIdx === 2) {
+          // QUIZ
+          stopPracticePolling();
+          toggleNavs(false);
+          dotsContainer.innerHTML = "";
+          progressEl.textContent = "Step 3: Final Quiz";
+          startQuiz();
+        }
+      }
+
+      function toggleNavs(show) {
+        const disp = show ? "flex" : "none";
+        prevBtn.style.display = nextBtn.style.display = disp;
+      }
+
+      function updateCard(index) {
+        currentIndex = index;
+        const item = currentCards[index];
+        slide.innerHTML = renderCardContent(item);
+        progressEl.textContent = (index + 1) + " / " + currentCards.length;
+        const dots = dotsContainer.querySelectorAll(".fc-dot");
+        dots.forEach((d, i) => d.classList.toggle("active", i === index));
+        if (index === currentCards.length - 1) {
+          nextBtn.disabled = true; // Disable the nav arrow on last card to force using the Finish button
+          actionArea.innerHTML = `<button class="cel-btn" id="finishLearn" style="background:var(--accent);margin-top:0;">Finish Learn ➔</button>`;
+          document.getElementById("finishLearn").onclick = () => {
+            awardXP(10, currentLessonKey, 0);
+            showStep(1);
+          };
+        } else {
+          nextBtn.disabled = false;
+          actionArea.innerHTML = "";
+          nextBtn.onclick = goNext;
+        }
+      }
+
+      function showCard(index, direction) {
+        if (isAnimating) return;
+        if (direction) {
+          isAnimating = true;
+          slide.className = "fc-slide " + (direction === "left" ? "slide-left-out" : "slide-right-out");
+          setTimeout(() => {
+            updateCard(index);
+            slide.className = "fc-slide " + (direction === "left" ? "slide-left-in" : "slide-right-in");
+            setTimeout(() => { slide.className = "fc-slide"; isAnimating = false; }, 300);
+          }, 200);
+        } else {
+          updateCard(index);
+        }
+      }
+
+      function goPrev() { if (currentIndex > 0) showCard(currentIndex - 1, "right"); }
+      function goNext() { if (currentIndex < currentCards.length - 1) showCard(currentIndex + 1, "left"); }
+
+      // ─── Practice Mode (Camera-based) ───
+      function stopPracticePolling() {
+        if (practicePollingId) {
+          clearInterval(practicePollingId);
+          practicePollingId = null;
+        }
+      }
+
+      async function startPracticeLoop() {
+        let pIndex = 0;
+        const pCards = [...currentCards].sort(() => Math.random() - 0.5).slice(0, 5);
+
+        // Start camera if not already running
+        if (!practiceCameraStarted) {
+          actionArea.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:0.85rem;">Starting camera...</div>`;
+          try {
+            const r = await fetch("/action/start", { method: "POST" });
+            if (!r.ok) {
+              actionArea.innerHTML = `<div style="color:var(--coral);text-align:center;">Camera failed to start. Please try again.</div>
+                <button class="cel-btn" id="retryPractice" style="margin-top:12px;">RETRY</button>`;
+              document.getElementById("retryPractice").onclick = startPracticeLoop;
+              return;
+            }
+            practiceCameraStarted = true;
+          } catch (e) {
+            actionArea.innerHTML = `<div style="color:var(--coral);text-align:center;">Camera error: ${e.message}</div>`;
+            return;
+          }
+        }
+
+        // Also clear translator state
+        await fetch("/action/clear", { method: "POST" }).catch(() => {});
+
+        function showPracticeCard() {
+          if (pIndex >= pCards.length) {
+            stopPracticePolling();
+            awardXP(15, currentLessonKey, 1);
+            showStep(2);
+            return;
+          }
+
+          const item = pCards[pIndex];
+          const targetLetter = item.label.toUpperCase();
+          const imageUrl = `/sign_image/${encodeURIComponent(item.label)}`;
+
+          slide.innerHTML = `<div class="practice-layout">
+            <div class="practice-target">${targetLetter}</div>
+            <div class="practice-instruction">Show the sign for this letter</div>
+            <div class="practice-camera-wrap" id="practiceCamWrap">
+              <div class="practice-camera-overlay" id="practiceCamOff">
+                <div class="practice-camera-starting">Detecting without preview</div>
+                <button class="practice-cam-toggle" id="practiceShowCam">SHOW CAMERA</button>
+              </div>
+              <img src="" alt="Camera feed" id="practiceCamFeed" style="display:none;">
+              <button class="practice-cam-toggle practice-cam-hide" id="practiceHideCam" style="display:none;">HIDE CAMERA</button>
+            </div>
+            <div class="practice-hold-bar">
+              <div class="practice-hold-fill" id="practiceHoldFill"></div>
+            </div>
+            <div class="practice-prediction-label">DETECTED</div>
+            <div class="practice-prediction" id="practicePrediction">—</div>
+            <div class="practice-feedback" id="practiceFeedback">&nbsp;</div>
+          </div>`;
+          // Camera toggle handlers
+          document.getElementById("practiceShowCam").onclick = () => {
+            document.getElementById("practiceCamWrap").classList.add("expanded");
+            document.getElementById("practiceCamFeed").src = "/video_feed";
+            document.getElementById("practiceCamFeed").style.display = "block";
+            document.getElementById("practiceCamOff").style.display = "none";
+            document.getElementById("practiceHideCam").style.display = "block";
+          };
+          document.getElementById("practiceHideCam").onclick = () => {
+            document.getElementById("practiceCamWrap").classList.remove("expanded");
+            document.getElementById("practiceCamFeed").src = "";
+            document.getElementById("practiceCamFeed").style.display = "none";
+            document.getElementById("practiceCamOff").style.display = "flex";
+            document.getElementById("practiceHideCam").style.display = "none";
+          };
+          actionArea.innerHTML = "";
+          progressEl.textContent = `Practice: ${pIndex + 1} / ${pCards.length}`;
+
+          // Stability tracking
+          let matchStart = null;
+          const HOLD_SECONDS = 1.5;
+          let isCorrect = false;
+
+          // Start polling /status
+          stopPracticePolling();
+          practicePollingId = setInterval(async () => {
+            if (isCorrect) return;
+            try {
+              const res = await fetch("/status");
+              if (res.status === 401) { window.location.href = "/login"; return; }
+              const data = await res.json();
+              const prediction = (data.prediction || "").toUpperCase();
+
+              const predEl = document.getElementById("practicePrediction");
+              const feedbackEl = document.getElementById("practiceFeedback");
+              const holdFill = document.getElementById("practiceHoldFill");
+              const camWrap = document.getElementById("practiceCamWrap");
+
+              if (!predEl || !feedbackEl || !holdFill || !camWrap) return;
+
+              predEl.textContent = prediction || "—";
+
+              if (prediction === targetLetter) {
+                // Matching — track stability
+                if (!matchStart) matchStart = Date.now();
+                const elapsed = (Date.now() - matchStart) / 1000;
+                const progress = Math.min(1, elapsed / HOLD_SECONDS);
+                holdFill.style.width = (progress * 100) + "%";
+                holdFill.classList.add("match");
+                camWrap.classList.remove("error");
+
+                if (elapsed >= HOLD_SECONDS) {
+                  // ✅ SUCCESS
+                  isCorrect = true;
+                  stopPracticePolling();
+                  holdFill.style.width = "100%";
+                  camWrap.classList.add("success");
+                  camWrap.classList.remove("error");
+                  feedbackEl.className = "practice-feedback success-text";
+                  feedbackEl.innerHTML = "✔ Correct! +10 XP";
+
+                  // Award XP for this sign
+                  awardXP(10, currentLessonKey, 1);
+
+                  // Auto-advance after 1.5s
+                  setTimeout(() => {
+                    pIndex++;
+                    showPracticeCard();
+                  }, 1500);
+                } else {
+                  feedbackEl.className = "practice-feedback success-text";
+                  feedbackEl.innerHTML = `Hold steady... ${(HOLD_SECONDS - elapsed).toFixed(1)}s`;
+                }
+              } else {
+                // Not matching — reset
+                matchStart = null;
+                holdFill.style.width = "0%";
+                holdFill.classList.remove("match");
+
+                if (prediction && prediction !== "—" && prediction !== "-") {
+                  camWrap.classList.add("error");
+                  camWrap.classList.remove("success");
+                  feedbackEl.className = "practice-feedback error-text";
+                  feedbackEl.textContent = "Not quite. Try again.";
+                } else {
+                  camWrap.classList.remove("error", "success");
+                  feedbackEl.className = "practice-feedback";
+                  feedbackEl.innerHTML = "&nbsp;";
+                }
+              }
+            } catch (e) { /* polling error, ignore */ }
+          }, 150);
+        }
+
+        showPracticeCard();
+      }
+
+      // ─── Quiz Mode ───
+      function startQuiz() {
+        const quizCard = currentCards[Math.floor(Math.random() * currentCards.length)];
+        const distractors = currentCards.filter(c => c.label !== quizCard.label)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
+        const options = [quizCard, ...distractors].sort(() => Math.random() - 0.5);
+
+        const imageUrl = `/sign_image/${encodeURIComponent(quizCard.label)}`;
+        slide.innerHTML = `<div class="fc-image-container">
+                             <img src="${imageUrl}" class="fc-real-image" 
+                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
+                                  onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+                             <div class="fc-placeholder" style="display: none;"></div>
+                           </div>
+                           <p class="fc-desc" style="font-size:1.2rem;font-weight:700;">Which letter does this sign represent?</p>`;
+
+        const optHtml = options.map(opt => `<div class="fc-quiz-opt" data-label="${opt.label}">${opt.label}</div>`).join("");
+        actionArea.innerHTML = `<div class="fc-quiz-options">${optHtml}</div>`;
+
+        actionArea.querySelectorAll(".fc-quiz-opt").forEach(el => {
+          el.onclick = () => {
+            if (el.dataset.label === quizCard.label) {
+              el.classList.add("correct");
+              setTimeout(finishLesson, 600);
+            } else {
+              el.classList.add("wrong");
+              setTimeout(() => el.classList.remove("wrong"), 500);
+            }
+          };
+        });
+      }
+
+      async function finishLesson() {
+        await awardXP(50, currentLessonKey, 2);
+        closeModal();
+        showCelebration();
+        syncStats();
+      }
+
+      function showCelebration() {
+        celXP.textContent = "+50";
+        celStreak.textContent = userStats.streak;
+        celOverlay.classList.add("open");
+
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#9C7BFF', '#59cf90', '#44b0e7', '#f472b6', '#ffcc33']
+        });
+      }
+
+      celContinue.onclick = () => celOverlay.classList.remove("open");
+
+      // ─── Modal Handlers ───
+      function openModal(lessonKey) {
+        if (!unlockedLessons.includes(lessonKey)) {
+          // Show a brief toast for locked lessons
+          const toast = document.createElement('div');
+          toast.textContent = '🔒 Complete the previous lesson first!';
+          toast.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--surface2);color:#fff;padding:12px 24px;border-radius:16px;z-index:300;font-weight:600;border:1px solid var(--line);animation:fadeIn .3s';
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 2000);
+          return;
+        }
+        const lesson = LESSONS[lessonKey];
+        if (!lesson) return;
+        currentLessonKey = lessonKey;
+        currentCards = lesson.cards;
+        card.className = "fc-card " + lesson.accent;
+        overlay.classList.add("open");
+        document.body.classList.add("modal-open");
+        showStep(0);
+        closeBtn.focus();
+      }
+
+      function closeModal() {
+        // Stop practice mode polling and clean up camera feed
+        stopPracticePolling();
+        const camFeed = document.getElementById("practiceCamFeed");
+        if (camFeed) camFeed.src = "";
+        // Stop the camera entirely if practice started it
+        if (practiceCameraStarted) {
+          fetch("/action/stop", { method: "POST" }).catch(() => {});
+          practiceCameraStarted = false;
+        }
+        overlay.classList.remove("open");
+        document.body.classList.remove("modal-open");
+      }
+
+      prevBtn.onclick = goPrev;
+      closeBtn.onclick = closeModal;
+      overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+
+      document.querySelectorAll(".fc-step").forEach(el => {
+        el.onclick = () => {
+          const stepIdx = parseInt(el.dataset.step);
+          // Allow jumping back or to steps already started
+          if (stepIdx <= currentStep || lessonProgress[currentLessonKey] === 100) {
+            showStep(stepIdx);
+          }
+        };
+      });
+
+      document.querySelectorAll(".card[data-lesson]").forEach(el => {
+        el.addEventListener("click", () => openModal(el.dataset.lesson));
+      });
+
+      // Initial Sync
+      syncStats();
+    })();
+  </script>
+</body>
+
+</html>
