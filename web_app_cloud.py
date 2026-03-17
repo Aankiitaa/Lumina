@@ -113,6 +113,7 @@ app = Flask(__name__)
 CORS(app)
 app.secret_key = os.environ.get("LUMINA_SECRET_KEY", "change-this-in-production")
 DB_PATH = os.environ.get("LUMINA_AUTH_DB", "auth.db")
+init_auth_db()
 
 def get_db_conn():
     conn = sqlite3.connect(DB_PATH)
