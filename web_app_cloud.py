@@ -230,12 +230,15 @@ def send_otp_email(email, otp):
     msg.attach(MIMEText(html_content, "html"))
 
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        # Add a 10-second timeout to prevent Gunicorn workers from hanging on Render
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
             server.starttls()
             server.login(sender_email, sender_password)
             server.send_message(msg)
         return True
     except Exception as e:
+        print(f"Failed to send email to {email}. Error: {e}")
+        print(f"--- FALLBACK OTP for {email} is: {otp} ---")
         return False
 
 def login_required(view):
