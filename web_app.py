@@ -19,6 +19,9 @@ import smtplib
 from flask import Flask, Response, abort, jsonify, redirect, render_template, request, send_from_directory, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
+# Text-to-Sign module
+from text_to_sign import init_gemini, translate_to_signs, list_available_signs, is_ready as tts_is_ready
+
 # ----------------------------
 # Load model
 # ----------------------------
@@ -732,7 +735,44 @@ def action_stop():
 atexit.register(stop_camera)
 
 
+# ----------------------------
+# Text-to-Sign Routes
+# ----------------------------
+@app.route("/text-to-sign")
+@login_required
+def text_to_sign_page():
+    return render_template("text_to_sign.html")
+
+
+@app.post("/api/text-to-sign/translate")
+@login_required
+def text_to_sign_translate():
+    """Translate an English sentence to ASL sign sequence."""
+    data = request.json
+    sentence = data.get("sentence", "").strip()
+
+    if not sentence:
+        return jsonify({"ok": False, "error": "No sentence provided."}), 400
+
+    if len(sentence) > 300:
+        return jsonify({"ok": False, "error": "Sentence too long. Maximum 300 characters."}), 400
+
+    if not tts_is_ready():
+        return jsonify({"ok": False, "error": "Text-to-Sign service is not configured. Please set GEMINI_API_KEY in .env"}), 503
+
+    result = translate_to_signs(sentence)
+    return jsonify(result)
+
+
+@app.get("/api/text-to-sign/available-signs")
+@login_required
+def text_to_sign_available():
+    """List all available word signs in the dataset."""
+    return jsonify({"signs": list_available_signs()})
+
+
 if __name__ == "__main__":
     init_auth_db()
+    init_gemini()  # Initialize Gemini API for Text-to-Sign
     # Camera starts only when user clicks Start in the UI
     app.run(host="127.0.0.1", port=5001, debug=False)

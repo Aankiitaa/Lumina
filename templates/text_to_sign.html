@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lumina — Text to Sign</title>
+  <meta name="description" content="Type English sentences and see how to sign them in American Sign Language." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F0EDEA;
+      --surface: #FFFFFF;
+      --surface2: #F7F5F2;
+      --text: #1A1A2E;
+      --muted: #7A7A8E;
+      --line: #E8E5E0;
+      --yellow: #F0E54F;
+      --yellow-hover: #e8dd4a;
+      --lavender: #9B7BFF;
+      --coral: #e85d3a;
+      --pink: #F5C6D0;
+      --deep-purple: #6C4AB6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .wrap {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 22px 18px 110px;
+    }
+
+    /* Top bar */
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .left {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chip,
+    .logout-btn {
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .chip:hover,
+    .logout-btn:hover {
+      background: var(--surface2);
+      border-color: var(--lavender);
+      box-shadow: 0 2px 8px rgba(155, 123, 255, 0.1);
+    }
+
+    .title-block {
+      margin: 28px 0 18px;
+      text-align: center;
+    }
+
+    .title {
+      font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* Hero card */
+    .hero {
+      margin: 0 0 20px;
+      border-radius: 22px;
+      padding: 22px 26px;
+      background: var(--coral);
+      color: #FFFFFF;
+    }
+
+    .hero h2 {
+      font-size: clamp(1.2rem, 2vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .hero p {
+      margin: 6px 0 0;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.88rem;
+    }
+
+    /* Input section */
+    .input-section {
+      background: var(--surface);
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      margin-bottom: 20px;
+    }
+
+    .input-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .sentence-input {
+      flex: 1;
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 18px;
+      font: inherit;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--surface2);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      resize: none;
+      min-height: 52px;
+    }
+
+    .sentence-input:focus {
+      border-color: var(--lavender);
+      box-shadow: 0 0 0 3px rgba(155, 123, 255, 0.12);
+    }
+
+    .sentence-input::placeholder {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .btn-translate {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 28px;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.02em;
+      background: var(--yellow);
+      color: #1A1A2E;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 2px 10px rgba(240, 229, 79, 0.25);
+      white-space: nowrap;
+    }
+
+    .btn-translate:hover {
+      background: var(--yellow-hover);
+      box-shadow: 0 4px 18px rgba(240, 229, 79, 0.4);
+    }
+
+    .btn-translate:active {
+      transform: scale(0.97);
+    }
+
+    .btn-translate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Quick phrases */
+    .quick-phrases {
+      margin-top: 14px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .phrase-chip {
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .phrase-chip:hover {
+      border-color: var(--coral);
+      color: var(--coral);
+      background: rgba(232, 93, 58, 0.05);
+    }
+
+    /* Gloss display */
+    .gloss-section {
+      background: var(--surface);
+      border-radius: 22px;
+      padding: 24px 28px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .gloss-section.visible {
+      display: block;
+    }
+
+    .gloss-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .gloss-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .gloss-tokens {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .gloss-token {
+      background: var(--surface2);
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      transition: all 0.2s;
+    }
+
+    .gloss-token.active {
+      background: var(--coral);
+      border-color: var(--coral);
+      color: #FFFFFF;
+    }
+
+    .gloss-token.done {
+      background: rgba(155, 123, 255, 0.1);
+      border-color: var(--lavender);
+      color: var(--lavender);
+    }
+
+    /* Sign display stage */
+    .sign-stage {
+      background: var(--surface);
+      border-radius: 22px;
+      padding: 36px 28px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      text-align: center;
+      min-height: 360px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      position: relative;
+    }
+
+    .sign-stage.visible {
+      display: flex;
+    }
+
+    /* Sign image container */
+    .sign-display {
+      width: 260px;
+      height: 260px;
+      background: var(--surface2);
+      border: 2px solid var(--line);
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      transition: border-color 0.3s;
+      position: relative;
+    }
+
+    .sign-display.fingerspell {
+      border-color: var(--lavender);
+    }
+
+    .sign-display img {
+      max-width: 220px;
+      max-height: 220px;
+      object-fit: contain;
+    }
+
+    .sign-display video {
+      max-width: 220px;
+      max-height: 220px;
+      object-fit: contain;
+    }
+
+    /* Word label under sign */
+    .sign-word-label {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .sign-type-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 12px;
+    }
+
+    .sign-type-badge.fingerspell-badge {
+      color: var(--lavender);
+      border-color: var(--lavender);
+      background: rgba(155, 123, 255, 0.08);
+    }
+
+    /* Fingerspell letter display */
+    .fingerspell-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .fingerspell-progress {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .fs-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--surface2);
+      border: 1.5px solid var(--line);
+      display: grid;
+      place-items: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .fs-dot.active {
+      background: var(--lavender);
+      border-color: var(--lavender);
+      color: #FFFFFF;
+      transform: scale(1.15);
+    }
+
+    .fs-dot.done {
+      background: rgba(155, 123, 255, 0.15);
+      border-color: var(--lavender);
+      color: var(--lavender);
+    }
+
+    /* Playback controls */
+    .playback-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .ctrl-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .ctrl-btn:hover:not(:disabled) {
+      border-color: var(--lavender);
+      color: var(--lavender);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transform: scale(1.05);
+    }
+
+    .ctrl-btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    .ctrl-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .ctrl-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .ctrl-btn.play-btn {
+      width: 52px;
+      height: 52px;
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: #1A1A2E;
+      box-shadow: 0 2px 10px rgba(240, 229, 79, 0.25);
+    }
+
+    .ctrl-btn.play-btn:hover {
+      background: var(--yellow-hover);
+      border-color: var(--yellow-hover);
+      color: #1A1A2E;
+      box-shadow: 0 4px 18px rgba(240, 229, 79, 0.4);
+    }
+
+    .ctrl-btn.play-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Speed selector */
+    .speed-selector {
+      display: flex;
+      gap: 4px;
+      margin-left: 8px;
+    }
+
+    .speed-btn {
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .speed-btn.active {
+      background: var(--text);
+      border-color: var(--text);
+      color: #FFFFFF;
+    }
+
+    .speed-btn:hover:not(.active) {
+      border-color: var(--lavender);
+      color: var(--lavender);
+    }
+
+    /* Word progress bar at bottom of stage */
+    .word-progress {
+      width: 100%;
+      max-width: 400px;
+      height: 4px;
+      background: var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .word-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--coral);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    /* Empty state */
+    .empty-state {
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+
+    /* Error message */
+    .error-msg {
+      background: rgba(232, 93, 58, 0.08);
+      border: 1.5px solid rgba(232, 93, 58, 0.25);
+      border-radius: 14px;
+      padding: 14px 18px;
+      color: var(--coral);
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--line);
+      border-top-color: var(--coral);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Fade transition for signs */
+    .sign-fade-enter {
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 10px 12px;
+      z-index: 9;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+
+    .bottom-nav a:hover {
+      color: var(--lavender);
+    }
+
+    .bottom-nav a strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    @media (max-width: 640px) {
+      .input-row {
+        flex-direction: column;
+      }
+      .sign-display {
+        width: 220px;
+        height: 220px;
+      }
+      .sign-display img,
+      .sign-display video {
+        max-width: 180px;
+        max-height: 180px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <div class="top">
+      <div class="left">
+        <a class="chip" href="/">HOME</a>
+        <a class="chip" href="/academy">ACADEMY</a>
+        <a class="chip" href="/translator">TRANSLATOR</a>
+      </div>
+      <button class="logout-btn" id="logoutBtn">LOG OUT</button>
+    </div>
+
+    <header class="title-block">
+      <h1 class="title">Text to Sign</h1>
+      <p class="sub">Type an English sentence and see how to sign it in ASL.</p>
+    </header>
+
+    <section class="hero">
+      <h2>English to ASL translation</h2>
+      <p>Your sentence is converted to ASL grammar, then each word is displayed as a sign. Unknown words are automatically fingerspelled.</p>
+    </section>
+
+    <!-- Error display -->
+    <div class="error-msg" id="errorMsg"></div>
+
+    <!-- Input -->
+    <section class="input-section">
+      <label class="input-label" for="sentenceInput">Type your sentence</label>
+      <div class="input-row">
+        <input
+          type="text"
+          class="sentence-input"
+          id="sentenceInput"
+          placeholder="e.g. I am going to the store tomorrow"
+          autocomplete="off"
+          maxlength="300"
+        />
+        <button class="btn-translate" id="translateBtn">TRANSLATE</button>
+      </div>
+    </section>
+
+    <!-- ASL Gloss -->
+    <section class="gloss-section" id="glossSection">
+      <div class="gloss-bar">
+        <span class="gloss-label">ASL Structure</span>
+        <div class="gloss-tokens" id="glossTokens"></div>
+      </div>
+    </section>
+
+    <!-- Sign Stage -->
+    <section class="sign-stage" id="signStage">
+      <div id="signContent">
+        <p class="empty-state">Translation will appear here</p>
+      </div>
+
+      <!-- Playback Controls -->
+      <div class="playback-controls" id="playbackControls" style="display:none;">
+        <button class="ctrl-btn" id="prevBtn" disabled title="Previous sign">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="ctrl-btn play-btn" id="playBtn" title="Play / Pause">
+          <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="6,3 20,12 6,21"></polygon>
+          </svg>
+          <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none;">
+            <rect x="5" y="3" width="5" height="18"></rect>
+            <rect x="14" y="3" width="5" height="18"></rect>
+          </svg>
+        </button>
+        <button class="ctrl-btn" id="nextBtn" disabled title="Next sign">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+        <div class="speed-selector">
+          <button class="speed-btn" data-speed="2000">Slow</button>
+          <button class="speed-btn active" data-speed="1200">Normal</button>
+          <button class="speed-btn" data-speed="600">Fast</button>
+        </div>
+      </div>
+      <div class="word-progress" id="wordProgress" style="display:none;">
+        <div class="word-progress-fill" id="wordProgressFill"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="/"><strong>Home</strong>Choose track</a>
+    <a href="/academy"><strong>Practice</strong>Academy</a>
+    <a href="/translator"><strong>Translator</strong>Live camera</a>
+    <a href="/text-to-sign"><strong>Text to Sign</strong>Type to learn</a>
+  </nav>
+
+  <!-- Logout splash -->
+  <div id="logoutSplash" style="position:fixed;inset:0;display:none;place-items:center;background:#9B7BFF;z-index:100;">
+    <div style="text-align:center;">
+      <h1 style="font-size:clamp(2.6rem,10vw,4.8rem);font-weight:700;letter-spacing:0.12em;color:#FFFFFF;margin:0;">
+        LUMINA</h1>
+      <p style="margin:8px 0 0;color:rgba(255,255,255,0.75);font-size:0.92rem;font-weight:500;letter-spacing:0.06em;">SIGN LANGUAGE
+        TRANSLATOR + ACADEMY</p>
+    </div>
+  </div>
+
+  <script>
+    // --------------------------------------------------
+    // State
+    // --------------------------------------------------
+    let signs = [];          // Array of sign objects from the API
+    let currentIndex = 0;    // Current sign being displayed
+    let isPlaying = false;
+    let playTimer = null;
+    let speed = 1200;        // ms per sign
+    let fingerspellTimer = null;
+    let currentFsIndex = 0;  // current letter index during fingerspelling
+
+    // --------------------------------------------------
+    // DOM References
+    // --------------------------------------------------
+    const sentenceInput = document.getElementById("sentenceInput");
+    const translateBtn = document.getElementById("translateBtn");
+    const errorMsg = document.getElementById("errorMsg");
+    const glossSection = document.getElementById("glossSection");
+    const glossTokens = document.getElementById("glossTokens");
+    const signStage = document.getElementById("signStage");
+    const signContent = document.getElementById("signContent");
+    const playbackControls = document.getElementById("playbackControls");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const playBtn = document.getElementById("playBtn");
+    const playIcon = document.getElementById("playIcon");
+    const pauseIcon = document.getElementById("pauseIcon");
+    const wordProgress = document.getElementById("wordProgress");
+    const wordProgressFill = document.getElementById("wordProgressFill");
+
+    // --------------------------------------------------
+    // Translate
+    // --------------------------------------------------
+    translateBtn.addEventListener("click", doTranslate);
+    sentenceInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") doTranslate();
+    });
+
+    async function doTranslate() {
+      const sentence = sentenceInput.value.trim();
+      if (!sentence) return;
+
+      // Reset state
+      stopPlayback();
+      signs = [];
+      currentIndex = 0;
+      hideError();
+
+      // Show loading
+      translateBtn.disabled = true;
+      translateBtn.textContent = "Translating...";
+      glossSection.classList.remove("visible");
+      signStage.classList.add("visible");
+      signContent.innerHTML = '<div class="loading-spinner"></div>';
+      playbackControls.style.display = "none";
+      wordProgress.style.display = "none";
+
+      try {
+        const res = await fetch("/api/text-to-sign/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sentence })
+        });
+
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!data.ok) {
+          showError(data.error || "Translation failed. Please try again.");
+          signStage.classList.remove("visible");
+          return;
+        }
+
+        // Store signs
+        signs = data.signs;
+
+        // Render ASL gloss tokens
+        renderGloss(data.gloss, data.signs);
+
+        // Show first sign
+        if (signs.length > 0) {
+          renderSign(0);
+          playbackControls.style.display = "flex";
+          wordProgress.style.display = "block";
+          updateProgress();
+          updateNavButtons();
+        } else {
+          signContent.innerHTML = '<p class="empty-state">No signs to display</p>';
+        }
+
+      } catch (err) {
+        showError("Network error. Please check your connection and try again.");
+        signStage.classList.remove("visible");
+      } finally {
+        translateBtn.disabled = false;
+        translateBtn.textContent = "TRANSLATE";
+      }
+    }
+
+    // --------------------------------------------------
+    // Render ASL Gloss bar
+    // --------------------------------------------------
+    function renderGloss(gloss, signsList) {
+      glossTokens.innerHTML = "";
+      signsList.forEach((s, i) => {
+        const el = document.createElement("span");
+        el.className = "gloss-token";
+        el.textContent = s.word;
+        el.dataset.index = i;
+        el.addEventListener("click", () => {
+          stopPlayback();
+          goToSign(i);
+        });
+        glossTokens.appendChild(el);
+      });
+      glossSection.classList.add("visible");
+      updateGlossHighlight();
+    }
+
+    function updateGlossHighlight() {
+      document.querySelectorAll(".gloss-token").forEach((el, i) => {
+        el.classList.remove("active", "done");
+        if (i === currentIndex) el.classList.add("active");
+        else if (i < currentIndex) el.classList.add("done");
+      });
+    }
+
+    // --------------------------------------------------
+    // Render a single sign
+    // --------------------------------------------------
+    function renderSign(index) {
+      if (index < 0 || index >= signs.length) return;
+
+      currentIndex = index;
+      clearFingerspellTimer();
+
+      const sign = signs[index];
+      let html = "";
+
+      if (sign.type === "word") {
+        // Word sign — show GIF/image
+        const isVideo = sign.src && (sign.src.endsWith(".mp4") || sign.src.endsWith(".webm"));
+        html = '<div class="sign-fade-enter">';
+        html += '<span class="sign-type-badge">Word Sign</span>';
+        html += '<div class="sign-display" style="margin-top:12px;">';
+        if (isVideo) {
+          html += `<video src="${sign.src}" autoplay loop muted playsinline></video>`;
+        } else {
+          html += `<img src="${sign.src}" alt="Sign for ${sign.word}" />`;
+        }
+        html += '</div>';
+        html += `<div class="sign-word-label" style="margin-top:14px;">${sign.word}</div>`;
+        html += '</div>';
+
+      } else if (sign.type === "fingerspell") {
+        // Fingerspell — show letter by letter
+        html = '<div class="sign-fade-enter">';
+        html += '<span class="sign-type-badge fingerspell-badge">Fingerspelling</span>';
+        html += '<div class="sign-display fingerspell" id="fsDisplay" style="margin-top:12px;">';
+        if (sign.letters.length > 0 && sign.letters[0].src) {
+          html += `<img id="fsImage" src="${sign.letters[0].src}" alt="${sign.letters[0].letter}" />`;
+        }
+        html += '</div>';
+        html += `<div class="sign-word-label" style="margin-top:14px;" id="fsWord">${sign.word}</div>`;
+        html += `<div class="fingerspell-label" id="fsLetterLabel">Letter: ${sign.letters.length > 0 ? sign.letters[0].letter : ""}</div>`;
+        html += '<div class="fingerspell-progress" id="fsProgress">';
+        sign.letters.forEach((l, li) => {
+          html += `<div class="fs-dot ${li === 0 ? "active" : ""}" data-li="${li}">${l.letter}</div>`;
+        });
+        html += '</div>';
+        html += '</div>';
+      }
+
+      signContent.innerHTML = html;
+      updateGlossHighlight();
+      updateProgress();
+      updateNavButtons();
+
+      // Start fingerspell animation if applicable
+      if (sign.type === "fingerspell" && sign.letters.length > 1) {
+        currentFsIndex = 0;
+        startFingerspellAnimation(sign);
+      }
+    }
+
+    // --------------------------------------------------
+    // Fingerspell animation
+    // --------------------------------------------------
+    function startFingerspellAnimation(sign) {
+      clearFingerspellTimer();
+      currentFsIndex = 0;
+
+      const fsSpeed = Math.max(300, speed * 0.5); // Letters are faster than words
+
+      fingerspellTimer = setInterval(() => {
+        currentFsIndex++;
+        if (currentFsIndex >= sign.letters.length) {
+          // Loop or stop
+          if (isPlaying) {
+            clearFingerspellTimer();
+            // Auto-advance to next sign
+            advanceSign();
+            return;
+          } else {
+            currentFsIndex = 0; // Loop
+          }
+        }
+
+        const letter = sign.letters[currentFsIndex];
+        const img = document.getElementById("fsImage");
+        const label = document.getElementById("fsLetterLabel");
+        const dots = document.querySelectorAll(".fs-dot");
+
+        if (img && letter.src) {
+          img.src = letter.src;
+          img.alt = letter.letter;
+        }
+        if (label) label.textContent = "Letter: " + letter.letter;
+
+        dots.forEach((d, i) => {
+          d.classList.remove("active", "done");
+          if (i === currentFsIndex) d.classList.add("active");
+          else if (i < currentFsIndex) d.classList.add("done");
+        });
+      }, fsSpeed);
+    }
+
+    function clearFingerspellTimer() {
+      if (fingerspellTimer) {
+        clearInterval(fingerspellTimer);
+        fingerspellTimer = null;
+      }
+    }
+
+    // --------------------------------------------------
+    // Playback Controls
+    // --------------------------------------------------
+    playBtn.addEventListener("click", () => {
+      if (isPlaying) {
+        stopPlayback();
+      } else {
+        startPlayback();
+      }
+    });
+
+    prevBtn.addEventListener("click", () => {
+      stopPlayback();
+      if (currentIndex > 0) goToSign(currentIndex - 1);
+    });
+
+    nextBtn.addEventListener("click", () => {
+      stopPlayback();
+      if (currentIndex < signs.length - 1) goToSign(currentIndex + 1);
+    });
+
+    function startPlayback() {
+      isPlaying = true;
+      playIcon.style.display = "none";
+      pauseIcon.style.display = "block";
+
+      // If on a fingerspell sign, the fingerspell timer handles advancement
+      if (signs[currentIndex] && signs[currentIndex].type === "fingerspell") {
+        startFingerspellAnimation(signs[currentIndex]);
+        return;
+      }
+
+      scheduleNextSign();
+    }
+
+    function stopPlayback() {
+      isPlaying = false;
+      playIcon.style.display = "block";
+      pauseIcon.style.display = "none";
+      if (playTimer) {
+        clearTimeout(playTimer);
+        playTimer = null;
+      }
+    }
+
+    function scheduleNextSign() {
+      if (!isPlaying) return;
+      playTimer = setTimeout(() => {
+        advanceSign();
+      }, speed);
+    }
+
+    function advanceSign() {
+      if (currentIndex < signs.length - 1) {
+        goToSign(currentIndex + 1);
+        if (isPlaying) {
+          // If the new sign is fingerspell, the render function starts its timer
+          // and advanceSign will be called when fingerspelling finishes
+          if (signs[currentIndex].type !== "fingerspell") {
+            scheduleNextSign();
+          }
+        }
+      } else {
+        // Reached the end
+        stopPlayback();
+      }
+    }
+
+    function goToSign(index) {
+      renderSign(index);
+    }
+
+    function updateNavButtons() {
+      prevBtn.disabled = currentIndex <= 0;
+      nextBtn.disabled = currentIndex >= signs.length - 1;
+    }
+
+    function updateProgress() {
+      if (signs.length <= 1) {
+        wordProgressFill.style.width = "100%";
+      } else {
+        const pct = ((currentIndex + 1) / signs.length) * 100;
+        wordProgressFill.style.width = pct + "%";
+      }
+    }
+
+    // --------------------------------------------------
+    // Speed controls
+    // --------------------------------------------------
+    document.querySelectorAll(".speed-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".speed-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        speed = parseInt(btn.dataset.speed, 10);
+      });
+    });
+
+    // --------------------------------------------------
+    // Error handling
+    // --------------------------------------------------
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add("visible");
+    }
+
+    function hideError() {
+      errorMsg.classList.remove("visible");
+    }
+
+    // --------------------------------------------------
+    // Logout
+    // --------------------------------------------------
+    sessionStorage.removeItem("lumina_on_auth");
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      const splash = document.getElementById("logoutSplash");
+      splash.style.display = "grid";
+      await fetch("/logout", { method: "POST" });
+      sessionStorage.setItem("lumina_on_auth", "1");
+      setTimeout(() => { window.location.href = "/login"; }, 1600);
+    });
+  </script>
+</body>
+
+</html>

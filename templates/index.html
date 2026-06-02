@@ -277,7 +277,7 @@
       background: var(--surface);
       border-top: 1px solid var(--line);
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       padding: 10px 12px;
       z-index: 9;
       box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
@@ -376,6 +376,30 @@
       background: rgba(26, 26, 46, 0.85);
     }
 
+    /* Floating stop-camera button */
+    .stop-cam-btn {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      z-index: 6;
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      background: rgba(232, 93, 58, 0.82);
+      color: #fff;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .stop-cam-btn:hover {
+      background: var(--coral);
+    }
+
     /* --- Progress bar --- */
     .progress-wrap {
       height: 5px;
@@ -423,10 +447,14 @@
           </div>
           <div class="start-overlay" id="cameraOffMsg" style="display:none;">
             <p>Translating without preview</p>
-            <button class="btn-start" id="showCamBtn">SHOW CAMERA</button>
+            <div style="display:flex; gap:10px;">
+              <button class="btn-start" id="showCamBtn">SHOW CAMERA</button>
+              <button class="btn-start" id="stopProcessBtn1" style="background:var(--coral); box-shadow: 0 2px 12px rgba(232, 93, 58, 0.3);">STOP PROCESS</button>
+            </div>
           </div>
           <img alt="Translation Interface" id="videoFeed" style="display:none; width:100%; border-radius:16px;" />
           <button class="hide-cam-btn" id="hideCamBtn" style="display:none;">HIDE CAMERA</button>
+          <button class="stop-cam-btn" id="stopProcessBtn2" style="display:none;">STOP PROCESS</button>
           <div class="fps-pill" id="fps" style="display:none;">FPS: --</div>
         </section>
         <div class="progress-wrap" id="progressWrap" style="display:none;">
@@ -459,6 +487,7 @@
     <a href="/"><strong>Home</strong>Choose track</a>
     <a href="/academy"><strong>Practice</strong>Academy</a>
     <a href="/translator"><strong>Translator</strong>Live camera</a>
+    <a href="/text-to-sign"><strong>Text to Sign</strong>Type to learn</a>
   </nav>
 
   <script>
@@ -478,6 +507,8 @@
     const progressWrap = document.getElementById("progressWrap");
     const fpsPill = document.getElementById("fps");
     const hideCamBtn = document.getElementById("hideCamBtn");
+    const stopBtn1 = document.getElementById("stopProcessBtn1");
+    const stopBtn2 = document.getElementById("stopProcessBtn2");
 
     let cameraVisible = false;
 
@@ -496,12 +527,41 @@
       }
     });
 
+    async function stopProcess() {
+      const old1 = stopBtn1.textContent;
+      const old2 = stopBtn2.textContent;
+      stopBtn1.textContent = "Stopping...";
+      stopBtn2.textContent = "Stopping...";
+      
+      const r = await fetch("/action/stop", { method: "POST" });
+      if (r.status === 401) { window.location.href = "/login"; return; }
+      if (r.ok) {
+        stopBtn1.textContent = old1;
+        stopBtn2.textContent = old2;
+        stopBtn2.style.display = "none";
+        startOverlay.style.display = "flex";
+        cameraOffMsg.style.display = "none";
+        videoFeed.style.display = "none";
+        videoFeed.src = "";
+        progressWrap.style.display = "none";
+        fpsPill.style.display = "none";
+        hideCamBtn.style.display = "none";
+        startBtn.textContent = "START TRANSLATING";
+        startBtn.disabled = false;
+        cameraVisible = false;
+      }
+    }
+
+    stopBtn1.addEventListener("click", stopProcess);
+    stopBtn2.addEventListener("click", stopProcess);
+
     function showCamera() {
       videoFeed.src = "/video_feed";
       videoFeed.style.display = "block";
       cameraOffMsg.style.display = "none";
       fpsPill.style.display = "block";
       hideCamBtn.style.display = "block";
+      stopBtn2.style.display = "block";
       cameraVisible = true;
     }
 
@@ -511,6 +571,7 @@
       cameraOffMsg.style.display = "flex";
       fpsPill.style.display = "none";
       hideCamBtn.style.display = "none";
+      stopBtn2.style.display = "none";
       cameraVisible = false;
     }
 
@@ -528,6 +589,30 @@
           fpsPill.innerText = "SYSTEM STABLE | FPS: " + (d.fps ?? 0);
         }
         holdBar.style.width = Math.round((d.hold_progress ?? 0) * 100) + "%";
+
+        // Sync UI with backend state
+        if (!d.camera_running && startOverlay.style.display === "none") {
+          startOverlay.style.display = "flex";
+          cameraOffMsg.style.display = "none";
+          videoFeed.style.display = "none";
+          videoFeed.src = "";
+          progressWrap.style.display = "none";
+          fpsPill.style.display = "none";
+          hideCamBtn.style.display = "none";
+          stopBtn2.style.display = "none";
+          startBtn.textContent = "START TRANSLATING";
+          startBtn.disabled = false;
+          cameraVisible = false;
+        } else if (d.camera_running && startOverlay.style.display !== "none") {
+          startOverlay.style.display = "none";
+          if (!cameraVisible) {
+            cameraOffMsg.style.display = "flex";
+            stopBtn2.style.display = "none";
+          } else {
+            stopBtn2.style.display = "block";
+          }
+          progressWrap.style.display = "block";
+        }
       } catch { }
     }
 

@@ -1,6 +1,13 @@
+.env
 .DS_Store
 __pycache__/
 *.pyc
 .venv/
 venv/
 output_sentence.txt
+
+auth.db
+lumina_auth.db
+static/asl_alphabet_train/
+data/
+*.npy

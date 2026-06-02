@@ -377,22 +377,18 @@
     }
 
     .fc-slide {
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+      will-change: transform, opacity;
     }
 
-    .fc-slide.slide-left-out { transform: translateX(-60%); opacity: 0; }
-    .fc-slide.slide-right-out { transform: translateX(60%); opacity: 0; }
-    .fc-slide.slide-left-in { animation: slideInFromRight 0.3s ease forwards; }
-    .fc-slide.slide-right-in { animation: slideInFromLeft 0.3s ease forwards; }
+    .fc-slide.slide-left-out  { animation: slideOutLeft  0.25s cubic-bezier(0.4, 0, 1, 1) both; }
+    .fc-slide.slide-right-out { animation: slideOutRight 0.25s cubic-bezier(0.4, 0, 1, 1) both; }
+    .fc-slide.slide-left-in   { animation: slideInRight  0.28s cubic-bezier(0, 0, 0.2, 1) both; }
+    .fc-slide.slide-right-in  { animation: slideInLeft   0.28s cubic-bezier(0, 0, 0.2, 1) both; }
 
-    @keyframes slideInFromRight {
-      from { transform: translateX(40%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideInFromLeft {
-      from { transform: translateX(-40%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
+    @keyframes slideOutLeft  { from { transform: translateX(0);    opacity: 1; } to { transform: translateX(-52%); opacity: 0; } }
+    @keyframes slideOutRight { from { transform: translateX(0);    opacity: 1; } to { transform: translateX(52%);  opacity: 0; } }
+    @keyframes slideInRight  { from { transform: translateX(52%);  opacity: 0; } to { transform: translateX(0);    opacity: 1; } }
+    @keyframes slideInLeft   { from { transform: translateX(-52%); opacity: 0; } to { transform: translateX(0);    opacity: 1; } }
 
     .fc-image-container {
       width: 200px;
@@ -1186,8 +1182,7 @@
                  onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
             <div class="fc-placeholder" style="display: none;"></div>
           </div>
-          <div class="fc-label">${item.label}</div>
-          <div class="fc-desc">${item.desc}</div>`;
+          <div class="fc-label">${item.label}</div>`;
       }
 
       function updateStepUI() {
@@ -1260,12 +1255,20 @@
         if (isAnimating) return;
         if (direction) {
           isAnimating = true;
-          slide.className = "fc-slide " + (direction === "left" ? "slide-left-out" : "slide-right-out");
+          const outClass = direction === "left" ? "slide-left-out" : "slide-right-out";
+          const inClass  = direction === "left" ? "slide-left-in"  : "slide-right-in";
+          slide.className = "fc-slide " + outClass;
+          // Wait for exit animation to finish before swapping content
           setTimeout(() => {
             updateCard(index);
-            slide.className = "fc-slide " + (direction === "left" ? "slide-left-in" : "slide-right-in");
-            setTimeout(() => { slide.className = "fc-slide"; isAnimating = false; }, 300);
-          }, 200);
+            // One rAF to ensure the browser paints the new content before starting enter
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                slide.className = "fc-slide " + inClass;
+                setTimeout(() => { slide.className = "fc-slide"; isAnimating = false; }, 300);
+              });
+            });
+          }, 250);
         } else {
           updateCard(index);
         }
