@@ -11,3 +11,4 @@ lumina_auth.db
 static/asl_alphabet_train/
 data/
 *.npy
+research/
